@@ -1,5 +1,5 @@
 Name:          ceph
-Version:       0.20.2
+Version:       0.21.1
 Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
@@ -52,7 +52,6 @@ make install DESTDIR=$RPM_BUILD_ROOT
 find $RPM_BUILD_ROOT -type f -name "*.la" -exec rm -f {} ';'
 find $RPM_BUILD_ROOT -type f -name "*.a" -exec rm -f {} ';'
 install -D src/init-ceph $RPM_BUILD_ROOT%{_initddir}/ceph
-chmod 0644 $RPM_BUILD_ROOT%{_sysconfdir}/ceph/sample.ceph.conf
 
 # remove debug binaries
 rm -f $RPM_BUILD_ROOT%{_bindir}/dumpjournal
@@ -67,6 +66,10 @@ rm -f $RPM_BUILD_ROOT%{_bindir}/testkeys
 rm -f $RPM_BUILD_ROOT%{_bindir}/testmsgr
 rm -f $RPM_BUILD_ROOT%{_bindir}/testrados
 rm -f $RPM_BUILD_ROOT%{_bindir}/testradospp
+
+# Drop rados-classes directory
+mv -f $RPM_BUILD_ROOT%{_libdir}/rados-classes/* $RPM_BUILD_ROOT%{_libdir}/
+rmdir $RPM_BUILD_ROOT%{_libdir}/rados-classes
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -101,24 +104,26 @@ fi
 %{_bindir}/cmon
 %{_bindir}/cmds
 %{_bindir}/cosd
-%{_bindir}/mkmonfs
 %{_bindir}/rados
-%{_bindir}/rbdtool
 %{_bindir}/psim
+%{_bindir}/cclass
+%{_bindir}/rbd
+%{_bindir}/cclsinfo
 %{_initddir}/ceph
 %{_libdir}/libceph.so.*
 %{_libdir}/libcrush.so.*
 %{_libdir}/librados.so.*
-%{_sbindir}/mkcephfs
+%{_libdir}/libcls_rbd.so.*
+/sbin/mkcephfs
 /sbin/mount.ceph
 %{_libdir}/ceph
-%config(noreplace) %{_sysconfdir}/ceph/sample.ceph.conf
-%config(noreplace) %{_sysconfdir}/ceph/sample.fetch_config
+%dir %{_docdir}/ceph
+%{_docdir}/ceph/sample.ceph.conf
+%{_docdir}/ceph/sample.fetch_config
 %{_mandir}/man8/cmon.8*
 %{_mandir}/man8/cmds.8*
 %{_mandir}/man8/cosd.8*
 %{_mandir}/man8/mkcephfs.8*
-%{_mandir}/man8/mkmonfs.8*
 %{_mandir}/man8/crun.8*
 %{_mandir}/man8/csyn.8*
 %{_mandir}/man8/crushtool.8*
@@ -130,8 +135,10 @@ fi
 %{_mandir}/man8/radosgw.8*
 %{_mandir}/man8/radosgw_admin.8*
 %{_mandir}/man8/rados.8*
-%{_mandir}/man8/rbdtool.8*
 %{_mandir}/man8/cauthtool.8*
+%{_mandir}/man8/cclass.8*
+%{_mandir}/man8/rbd.8*
+%{_mandir}/man8/cclsinfo.8*
 
 %files fuse
 %defattr(-,root,root,-)
@@ -158,8 +165,17 @@ fi
 %{_libdir}/libceph.so
 %{_libdir}/libcrush.so
 %{_libdir}/librados.so
+%{_libdir}/libcls_rbd.so
 
 %changelog
+* Thu Aug 26 2010 Steven Pritchard <steve@kspei.com> 0.21.1-1
+- Update to 0.21.1.
+- Sample configs moved to /usr/share/doc/ceph/.
+- Added cclass, rbd, and cclsinfo.
+- Dropped mkmonfs and rbdtool.
+- mkcephfs moved to /sbin.
+- Add libcls_rbd.so.
+
 * Tue Jul  6 2010 Josef Bacik <josef@toxicpanda.com> 0.20.2-1
 - update to 0.20.2
 
