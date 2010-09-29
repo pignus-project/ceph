@@ -1,5 +1,5 @@
 Name:          ceph
-Version:       0.21.2
+Version:       0.21.3
 Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
@@ -168,6 +168,9 @@ fi
 %{_libdir}/libcls_rbd.so
 
 %changelog
+* Wed Sep 29 2010 Steven Pritchard <steve@kspei.com> 0.21.3-1
+- Update to 0.21.3.
+
 * Mon Aug 30 2010 Steven Pritchard <steve@kspei.com> 0.21.2-1
 - Update to 0.21.2.
 
