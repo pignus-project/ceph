@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.21.3
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -168,6 +168,9 @@ fi
 %{_libdir}/libcls_rbd.so
 
 %changelog
+* Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.21.3-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
 * Wed Sep 29 2010 Steven Pritchard <steve@kspei.com> 0.21.3-1
 - Update to 0.21.3.
 
