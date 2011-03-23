@@ -1,6 +1,6 @@
 Name:          ceph
-Version:       0.21.3
-Release:       2%{?dist}
+Version:       0.25.1
+Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -9,10 +9,11 @@ URL:           http://ceph.newdream.net/
 Source:        http://ceph.newdream.net/download/%{name}-%{version}.tar.gz
 Patch0:        ceph-init-fix.patch
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
-BuildRequires: libedit-devel, fuse-devel, git, perl, perl-devel, gdbm,
-BuildRequires: openssl-devel, libatomic_ops-devel
+BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm,
+BuildRequires: cryptopp-devel, libatomic_ops-devel, google-perftools-devel
+BuildRequires: pkgconfig
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Requires(post): chkconfig
+Requires(post): chkconfig, binutils, libedit, google-perftools
 Requires(preun): chkconfig
 Requires(preun): initscripts
 
@@ -36,40 +37,51 @@ Requires:    %{name} = %{version}-%{release}
 %description devel
 This package contains the headers needed to develop programs that use Ceph.
 
+%package radosgw
+Summary:        rados REST gateway
+Group:          Development/Libraries
+Requires:       mod_fcgid
+BuildRequires:  fcgi-devel
+BuildRequires:  expat-devel
+
+%description radosgw
+radosgw is an S3 HTTP REST gateway for the RADOS object store. It is
+implemented as a FastCGI module using libfcgi, and can be used in
+conjunction with any FastCGI capable web server.
+
+%package gcephtool
+Summary:        Ceph graphical monitoring tool
+Group:          System Environment/Base
+License:        LGPLv2
+Requires:       gtk2 gtkmm24
+BuildRequires:  gtk2-devel gtkmm24-devel
+
+%description gcephtool
+gcephtool is a graphical monitor for the clusters running the Ceph distributed
+file system.
+
 %prep
 %setup -q
 %patch0 -p1 -b .init
-chmod 0644 src/common/Mutex.h
 
 %build
 ./autogen.sh
-%configure --without-hadoop --without-debug
-make CFLAGS="$RPM_OPT_FLAGS"
+%{configure} --prefix=/usr --sbindir=/sbin \
+--localstatedir=/var --sysconfdir=/etc \
+--without-hadoop --with-radosgw --with-gtk2 
+make CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"
 
 %install
 rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 find $RPM_BUILD_ROOT -type f -name "*.la" -exec rm -f {} ';'
 find $RPM_BUILD_ROOT -type f -name "*.a" -exec rm -f {} ';'
-install -D src/init-ceph $RPM_BUILD_ROOT%{_initddir}/ceph
-
-# remove debug binaries
-rm -f $RPM_BUILD_ROOT%{_bindir}/dumpjournal
-rm -f $RPM_BUILD_ROOT%{_bindir}/dupstore
-rm -f $RPM_BUILD_ROOT%{_bindir}/radosacl
-rm -f $RPM_BUILD_ROOT%{_bindir}/streamtest
-rm -f $RPM_BUILD_ROOT%{_bindir}/test_ioctls
-rm -f $RPM_BUILD_ROOT%{_bindir}/test_trans
-rm -f $RPM_BUILD_ROOT%{_bindir}/testceph
-rm -f $RPM_BUILD_ROOT%{_bindir}/testcrypto
-rm -f $RPM_BUILD_ROOT%{_bindir}/testkeys
-rm -f $RPM_BUILD_ROOT%{_bindir}/testmsgr
-rm -f $RPM_BUILD_ROOT%{_bindir}/testrados
-rm -f $RPM_BUILD_ROOT%{_bindir}/testradospp
-
-# Drop rados-classes directory
-mv -f $RPM_BUILD_ROOT%{_libdir}/rados-classes/* $RPM_BUILD_ROOT%{_libdir}/
-rmdir $RPM_BUILD_ROOT%{_libdir}/rados-classes
+install -D src/init-ceph $RPM_BUILD_ROOT%{_initrddir}/ceph
+chmod 0644 $RPM_BUILD_ROOT%{_docdir}/ceph/sample.ceph.conf
+install -m 0644 -D src/logrotate.conf $RPM_BUILD_ROOT%{_sysconfdir}/logrotate.d/ceph
+mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/lib/ceph/tmp/
+mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log/ceph/
+mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log/ceph/stat
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -94,7 +106,10 @@ fi
 %defattr(-,root,root,-)
 %doc README COPYING
 %{_bindir}/ceph
+%{_bindir}/cephfs
 %{_bindir}/cconf
+%{_bindir}/cclass
+%{_bindir}/cclsinfo
 %{_bindir}/crushtool
 %{_bindir}/monmaptool
 %{_bindir}/osdmaptool
@@ -104,22 +119,23 @@ fi
 %{_bindir}/cmon
 %{_bindir}/cmds
 %{_bindir}/cosd
+%{_bindir}/crbdnamer
+%{_bindir}/librados-config
 %{_bindir}/rados
-%{_bindir}/psim
-%{_bindir}/cclass
 %{_bindir}/rbd
-%{_bindir}/cclsinfo
-%{_initddir}/ceph
+%{_bindir}/cdebugpack
+%{_initrddir}/ceph
 %{_libdir}/libceph.so.*
 %{_libdir}/libcrush.so.*
 %{_libdir}/librados.so.*
-%{_libdir}/libcls_rbd.so.*
+%{_libdir}/librbd.so.*
+%{_libdir}/rados-classes/libcls_rbd.so.*
 /sbin/mkcephfs
 /sbin/mount.ceph
 %{_libdir}/ceph
-%dir %{_docdir}/ceph
 %{_docdir}/ceph/sample.ceph.conf
 %{_docdir}/ceph/sample.fetch_config
+%config(noreplace) %{_sysconfdir}/logrotate.d/ceph
 %{_mandir}/man8/cmon.8*
 %{_mandir}/man8/cmds.8*
 %{_mandir}/man8/cosd.8*
@@ -131,14 +147,22 @@ fi
 %{_mandir}/man8/monmaptool.8*
 %{_mandir}/man8/cconf.8*
 %{_mandir}/man8/ceph.8*
+%{_mandir}/man8/cephfs.8*
 %{_mandir}/man8/mount.ceph.8*
 %{_mandir}/man8/radosgw.8*
 %{_mandir}/man8/radosgw_admin.8*
 %{_mandir}/man8/rados.8*
-%{_mandir}/man8/cauthtool.8*
-%{_mandir}/man8/cclass.8*
 %{_mandir}/man8/rbd.8*
-%{_mandir}/man8/cclsinfo.8*
+%{_mandir}/man8/cauthtool.8*
+%{_mandir}/man8/cdebugpack.8*
+%{_mandir}/man8/cclass.8.gz
+%{_mandir}/man8/cclsinfo.8.gz
+%{python_sitelib}/rados.py
+%{python_sitelib}/rados.pyc
+%{python_sitelib}/rados.pyo
+%dir %{_localstatedir}/lib/ceph/
+%dir %{_localstatedir}/lib/ceph/tmp/
+%dir %{_localstatedir}/log/ceph/
 
 %files fuse
 %defattr(-,root,root,-)
@@ -162,12 +186,28 @@ fi
 %{_includedir}/rados/crc32c.h
 %{_includedir}/rados/Spinlock.h
 %{_includedir}/rados/assert.h
+%{_includedir}/rbd/librbd.h
+%{_includedir}/rbd/librbd.hpp
 %{_libdir}/libceph.so
 %{_libdir}/libcrush.so
 %{_libdir}/librados.so
-%{_libdir}/libcls_rbd.so
+%{_libdir}/librbd.so*
+%{_libdir}/rados-classes/libcls_rbd.so
+
+%files gcephtool
+%defattr(-,root,root,-)
+%{_bindir}/gceph
+%{_datadir}/ceph_tool/gui_resources/*
+
+%files radosgw
+%defattr(-,root,root,-)
+%{_bindir}/radosgw
+%{_bindir}/radosgw_admin
 
 %changelog
+* Tue Mar 22 2011 Josef Bacik <josef@toxicpanda.com> 0.25.1-1
+- Update to 0.25.1
+
 * Tue Feb 08 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.21.3-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
