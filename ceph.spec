@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.26
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -207,6 +207,9 @@ fi
 %{_bindir}/radosgw_admin
 
 %changelog
+* Tue Apr  5 2011 Josef Bacik <josef@toxicpanda.com> 0.26-2
+- Add the compile fix patch
+
 * Tue Apr  5 2011 Josef Bacik <josef@toxicpanda.com> 0.26
 - Update to 0.26
 
