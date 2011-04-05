@@ -1,5 +1,5 @@
 Name:          ceph
-Version:       0.25.1
+Version:       0.26
 Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
@@ -8,10 +8,11 @@ URL:           http://ceph.newdream.net/
 
 Source:        http://ceph.newdream.net/download/%{name}-%{version}.tar.gz
 Patch0:        ceph-init-fix.patch
+Patch1:        ceph-fix-compile-error.patch
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm,
 BuildRequires: cryptopp-devel, libatomic_ops-devel, google-perftools-devel
-BuildRequires: pkgconfig
+BuildRequires: pkgconfig, libcurl-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires(post): chkconfig, binutils, libedit, google-perftools
 Requires(preun): chkconfig
@@ -63,6 +64,7 @@ file system.
 %prep
 %setup -q
 %patch0 -p1 -b .init
+%patch1 -p1 -b .compile
 
 %build
 ./autogen.sh
@@ -205,6 +207,9 @@ fi
 %{_bindir}/radosgw_admin
 
 %changelog
+* Tue Apr  5 2011 Josef Bacik <josef@toxicpanda.com> 0.26
+- Update to 0.26
+
 * Tue Mar 22 2011 Josef Bacik <josef@toxicpanda.com> 0.25.1-1
 - Update to 0.25.1
 
