@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.31
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -8,6 +8,7 @@ URL:           http://ceph.newdream.net/
 
 Source:        http://ceph.newdream.net/download/%{name}-%{version}.tar.gz
 Patch0:        ceph-init-fix.patch
+Patch1:        ceph-compilefix.patch
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm,
 BuildRequires: cryptopp-devel, libatomic_ops-devel, google-perftools-devel
@@ -73,6 +74,7 @@ file system.
 %prep
 %setup -q
 %patch0 -p1 -b .init
+%patch1 -p1 -b .compilefix
 
 %build
 ./autogen.sh
@@ -219,6 +221,9 @@ fi
 %{_bindir}/boto_tool
 
 %changelog
+* Tue Jul 12 2011 Josef Bacik <josef@toxicpanda.com> 0.31-2
+- Remove curl/types.h include since we don't use it anymore
+
 * Tue Jul 12 2011 Josef Bacik <josef@toxicpanda.com> 0.31-1
 - Update to 0.31
 
