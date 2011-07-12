@@ -1,6 +1,6 @@
 Name:          ceph
-Version:       0.26
-Release:       2%{?dist}
+Version:       0.31
+Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -8,13 +8,12 @@ URL:           http://ceph.newdream.net/
 
 Source:        http://ceph.newdream.net/download/%{name}-%{version}.tar.gz
 Patch0:        ceph-init-fix.patch
-Patch1:        ceph-fix-compile-error.patch
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm,
 BuildRequires: cryptopp-devel, libatomic_ops-devel, google-perftools-devel
-BuildRequires: pkgconfig, libcurl-devel
+BuildRequires: pkgconfig, libcurl-devel, keyutils-libs-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
-Requires(post): chkconfig, binutils, libedit, google-perftools
+Requires(post): chkconfig, binutils, libedit
 Requires(preun): chkconfig
 Requires(preun): initscripts
 
@@ -50,6 +49,16 @@ radosgw is an S3 HTTP REST gateway for the RADOS object store. It is
 implemented as a FastCGI module using libfcgi, and can be used in
 conjunction with any FastCGI capable web server.
 
+%package obsync
+Summary:        synchronize data between cloud object storage providers or a local directory
+Group:          Productivity/Networking/Other
+License:        LGPLv2
+Requires:       python, python-boto
+%description obsync
+obsync is a tool to synchronize objects between cloud object
+storage providers, such as Amazon S3 (or compatible services), a
+Ceph RADOS cluster, or a local directory.
+
 %package gcephtool
 Summary:        Ceph graphical monitoring tool
 Group:          System Environment/Base
@@ -64,7 +73,6 @@ file system.
 %prep
 %setup -q
 %patch0 -p1 -b .init
-%patch1 -p1 -b .compile
 
 %build
 ./autogen.sh
@@ -110,7 +118,6 @@ fi
 %{_bindir}/ceph
 %{_bindir}/cephfs
 %{_bindir}/cconf
-%{_bindir}/cclass
 %{_bindir}/cclsinfo
 %{_bindir}/crushtool
 %{_bindir}/monmaptool
@@ -126,11 +133,12 @@ fi
 %{_bindir}/rados
 %{_bindir}/rbd
 %{_bindir}/cdebugpack
+%{_bindir}/ceph-coverage
 %{_initrddir}/ceph
 %{_libdir}/libceph.so.*
-%{_libdir}/libcrush.so.*
 %{_libdir}/librados.so.*
 %{_libdir}/librbd.so.*
+%{_libdir}/librgw.so.*
 %{_libdir}/rados-classes/libcls_rbd.so.*
 /sbin/mkcephfs
 /sbin/mount.ceph
@@ -157,11 +165,11 @@ fi
 %{_mandir}/man8/rbd.8*
 %{_mandir}/man8/cauthtool.8*
 %{_mandir}/man8/cdebugpack.8*
-%{_mandir}/man8/cclass.8.gz
 %{_mandir}/man8/cclsinfo.8.gz
 %{python_sitelib}/rados.py
 %{python_sitelib}/rados.pyc
 %{python_sitelib}/rados.pyo
+%{python_sitelib}/rgw.py*
 %dir %{_localstatedir}/lib/ceph/
 %dir %{_localstatedir}/lib/ceph/tmp/
 %dir %{_localstatedir}/log/ceph/
@@ -183,18 +191,17 @@ fi
 %{_includedir}/rados/librados.h
 %{_includedir}/rados/librados.hpp
 %{_includedir}/rados/buffer.h
-%{_includedir}/rados/atomic.h
 %{_includedir}/rados/page.h
 %{_includedir}/rados/crc32c.h
-%{_includedir}/rados/Spinlock.h
-%{_includedir}/rados/assert.h
+%{_includedir}/rados/librgw.h
 %{_includedir}/rbd/librbd.h
 %{_includedir}/rbd/librbd.hpp
 %{_libdir}/libceph.so
-%{_libdir}/libcrush.so
 %{_libdir}/librados.so
+%{_libdir}/librgw.so
 %{_libdir}/librbd.so*
 %{_libdir}/rados-classes/libcls_rbd.so
+%{_mandir}/man8/librados-config.8*
 
 %files gcephtool
 %defattr(-,root,root,-)
@@ -206,7 +213,15 @@ fi
 %{_bindir}/radosgw
 %{_bindir}/radosgw_admin
 
+%files obsync
+%defattr(-,root,root,-)
+%{_bindir}/obsync
+%{_bindir}/boto_tool
+
 %changelog
+* Tue Jul 12 2011 Josef Bacik <josef@toxicpanda.com> 0.31-1
+- Update to 0.31
+
 * Tue Apr  5 2011 Josef Bacik <josef@toxicpanda.com> 0.26-2
 - Add the compile fix patch
 
