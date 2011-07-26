@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.31
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -11,7 +11,11 @@ Patch0:        ceph-init-fix.patch
 Patch1:        ceph-compilefix.patch
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm,
-BuildRequires: cryptopp-devel, libatomic_ops-devel, google-perftools-devel
+# google-perftools is not available on ppc64:
+%ifnarch ppc64
+BuildRequires: google-perftools-devel
+%endif
+BuildRequires: cryptopp-devel, libatomic_ops-devel
 BuildRequires: pkgconfig, libcurl-devel, keyutils-libs-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires(post): chkconfig, binutils, libedit
@@ -80,6 +84,9 @@ file system.
 ./autogen.sh
 %{configure} --prefix=/usr --sbindir=/sbin \
 --localstatedir=/var --sysconfdir=/etc \
+%ifarch ppc64
+--without-tcmalloc \
+%endif
 --without-hadoop --with-radosgw --with-gtk2 
 make CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"
 
@@ -221,6 +228,9 @@ fi
 %{_bindir}/boto_tool
 
 %changelog
+* Mon Jul 25 2011 Karsten Hopp <karsten@redhat.com> 0.31-3
+- build without tcmalloc on ppc64, BR google-preftools is not available there
+
 * Tue Jul 12 2011 Josef Bacik <josef@toxicpanda.com> 0.31-2
 - Remove curl/types.h include since we don't use it anymore
 
