@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.31
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -11,8 +11,8 @@ Patch0:        ceph-init-fix.patch
 Patch1:        ceph-compilefix.patch
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm,
-# google-perftools is not available on ppc64:
-%ifnarch ppc64
+# google-perftools is not available on these:
+%ifnarch ppc64 s390 s390x
 BuildRequires: google-perftools-devel
 %endif
 BuildRequires: cryptopp-devel, libatomic_ops-devel
@@ -84,7 +84,7 @@ file system.
 ./autogen.sh
 %{configure} --prefix=/usr --sbindir=/sbin \
 --localstatedir=/var --sysconfdir=/etc \
-%ifarch ppc64
+%ifarch ppc64 s390 s390x
 --without-tcmalloc \
 %endif
 --without-hadoop --with-radosgw --with-gtk2 
@@ -228,8 +228,11 @@ fi
 %{_bindir}/boto_tool
 
 %changelog
+* Fri Aug 19 2011 Dan Horák <dan[at]danny.cz> 0.31-4
+- google-perftools not available also on s390(x)
+
 * Mon Jul 25 2011 Karsten Hopp <karsten@redhat.com> 0.31-3
-- build without tcmalloc on ppc64, BR google-preftools is not available there
+- build without tcmalloc on ppc64, BR google-perftools is not available there
 
 * Tue Jul 12 2011 Josef Bacik <josef@toxicpanda.com> 0.31-2
 - Remove curl/types.h include since we don't use it anymore
