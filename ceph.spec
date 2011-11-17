@@ -15,7 +15,7 @@ BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm,
 %ifnarch ppc64 s390 s390x
 BuildRequires: google-perftools-devel
 %endif
-BuildRequires: cryptopp-devel, libatomic_ops-devel-static
+BuildRequires: cryptopp-devel, libatomic_ops-static
 BuildRequires: pkgconfig, libcurl-devel, keyutils-libs-devel
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires(post): chkconfig, binutils, libedit
