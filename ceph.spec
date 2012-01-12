@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.37
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -234,6 +234,9 @@ fi
 %{_bindir}/boto_tool
 
 %changelog
+* Thu Jan 12 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.37-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Wed Nov 09 2011 David Nalley <david@gnsa.us> 0.37-2
 - making ceph spec file comply with static library deps guidelines 609700
 
