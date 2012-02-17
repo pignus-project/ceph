@@ -1,19 +1,21 @@
 Name:          ceph
-Version:       0.39
+Version:       0.41
 Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
 URL:           http://ceph.newdream.net/
 
-Source:        http://ceph.newdream.net/download/%{name}-%{version}.tar.gz
+Source:        http://ceph.newdream.net/download/%{name}-%{version}.tar.bz2
 Patch0:        ceph-init-fix.patch
 Patch1:        ceph.logrotate.patch
+Patch2:        ceph-0.39-comment-out-unused-code-in-dump_pop_map.patch
+Patch3:        ceph-0.41-compile-fixes.patch
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm,
 # google-perftools is not available on these:
 %ifnarch ppc64 s390 s390x
-BuildRequires: google-perftools-devel
+BuildRequires: gperftools-devel
 %endif
 BuildRequires: cryptopp-devel, libatomic_ops-devel, gcc-c++
 BuildRequires: pkgconfig, libcurl-devel, keyutils-libs-devel
@@ -80,6 +82,8 @@ file system.
 %setup -q
 %patch0 -p1 -b .init
 %patch1 -p0 
+%patch2 -p1 -b .unusedfix
+%patch3 -p1 -b .compilefix
 
 %build
 ./autogen.sh
@@ -235,6 +239,11 @@ fi
 %{_bindir}/boto_tool
 
 %changelog
+* Thu Feb 16 2012 Tom Callaway <spot@fedoraproject.org> 0.41-1
+- update to 0.41
+- fix issues preventing build
+- rebuild against gperftools
+
 * Sat Dec 03 2011 David Nalley <david@gnsa.us> 0.38-1
 - updating to upstream 0.39
 
