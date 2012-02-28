@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.41
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -239,6 +239,9 @@ fi
 %{_bindir}/boto_tool
 
 %changelog
+* Tue Feb 28 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.41-2
+- Rebuilt for c++ ABI breakage
+
 * Thu Feb 16 2012 Tom Callaway <spot@fedoraproject.org> 0.41-1
 - update to 0.41
 - fix issues preventing build
