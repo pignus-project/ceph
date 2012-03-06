@@ -1,5 +1,5 @@
 Name:          ceph
-Version:       0.41
+Version:       0.43
 Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
@@ -9,10 +9,8 @@ URL:           http://ceph.newdream.net/
 Source:        http://ceph.newdream.net/download/%{name}-%{version}.tar.bz2
 Patch0:        ceph-init-fix.patch
 Patch1:        ceph.logrotate.patch
-Patch2:        ceph-0.39-comment-out-unused-code-in-dump_pop_map.patch
-Patch3:        ceph-0.41-compile-fixes.patch
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
-BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm,
+BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm, libaio-devel,
 # google-perftools is not available on these:
 %ifnarch ppc64 s390 s390x
 BuildRequires: gperftools-devel
@@ -81,9 +79,7 @@ file system.
 %prep
 %setup -q
 %patch0 -p1 -b .init
-%patch1 -p0 
-%patch2 -p1 -b .unusedfix
-%patch3 -p1 -b .compilefix
+%patch1 -p0
 
 %build
 ./autogen.sh
@@ -108,6 +104,7 @@ mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log/ceph/
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log/ceph/stat
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ceph
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -150,6 +147,7 @@ fi
 %{_bindir}/rbd
 %{_bindir}/ceph-debugpack
 %{_bindir}/ceph-coverage
+%{_bindir}/ceph-dencoder
 %{_initrddir}/ceph
 %{_libdir}/libcephfs.so.*
 %{_libdir}/librados.so.*
@@ -185,7 +183,8 @@ fi
 %{_mandir}/man8/rbd.8*
 %{_mandir}/man8/ceph-authtool.8*
 %{_mandir}/man8/ceph-debugpack.8*
-%{_mandir}/man8/ceph-clsinfo.8.gz
+%{_mandir}/man8/ceph-clsinfo.8*
+%{_mandir}/man8/ceph-dencoder.8*
 %{python_sitelib}/rados.py*
 %{python_sitelib}/rgw.py*
 %{python_sitelib}/rbd.py*
@@ -239,6 +238,14 @@ fi
 %{_bindir}/boto_tool
 
 %changelog
+* Mon Mar  5 2012 Jonathan Dieter <jdieter@lesbg.com> - 0.43-1
+- Update to 0.43
+- Remove upstreamed compile fixes patch
+- Remove obsoleted dump_pop patch
+
+* Tue Feb 28 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.41-2
+- Rebuilt for c++ ABI breakage
+
 * Thu Feb 16 2012 Tom Callaway <spot@fedoraproject.org> 0.41-1
 - update to 0.41
 - fix issues preventing build
