@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.44
-Release:       2%{?dist}
+Release:       4%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -16,7 +16,7 @@ Patch2:        0001-Makefile-fix-modules-that-cannot-find-pk11pub.h-when.patch
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm, libaio-devel,
 # google-perftools is not available on these:
-%ifnarch ppc64 s390 s390x
+%ifnarch ppc ppc64 s390 s390x
 BuildRequires: gperftools-devel
 %endif
 BuildRequires: cryptopp-devel, libatomic_ops-devel, gcc-c++
@@ -90,7 +90,7 @@ file system.
 ./autogen.sh
 %{configure} --prefix=/usr --sbindir=/sbin \
 --localstatedir=/var --sysconfdir=/etc \
-%ifarch ppc64 s390 s390x
+%ifarch ppc ppc64 s390 s390x
 --without-tcmalloc \
 %endif
 --without-hadoop --with-radosgw --with-gtk2 \
@@ -245,6 +245,9 @@ fi
 %{_bindir}/boto_tool
 
 %changelog
+* Mon Mar 26 2012 Dan Horák <dan[at]danny.cz> 0.44-4
+- gperftools not available also on ppc
+
 * Mon Mar 26 2012 Jonathan Dieter <jdieter@lesbg.com> - 0.44-3
 - Remove unneeded patch
 
