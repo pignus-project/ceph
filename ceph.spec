@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.44
-Release:       4%{?dist}
+Release:       5%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -22,7 +22,7 @@ BuildRequires: gperftools-devel
 BuildRequires: cryptopp-devel, libatomic_ops-devel, gcc-c++
 BuildRequires: pkgconfig, libcurl-devel, keyutils-libs-devel
 BuildRequires: gtkmm24-devel, gtk2-devel, libuuid, libuuid-devel
-BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+
 Requires(post): chkconfig, binutils, libedit
 Requires(preun): chkconfig
 Requires(preun): initscripts
@@ -88,18 +88,29 @@ file system.
 
 %build
 ./autogen.sh
+
+%ifarch armv5tel
+# libatomic_ops does not have correct asm for ARMv5tel
+EXTRA_CFLAGS="-DAO_USE_PTHREAD_DEFS"
+%endif
+%ifarch %{arm}
+# libatomic_ops seems to fallback on some pthread implementation on ARM
+EXTRA_LDFLAGS="-lpthread"
+%endif
+
 %{configure} --prefix=/usr --sbindir=/sbin \
 --localstatedir=/var --sysconfdir=/etc \
 %ifarch ppc ppc64 s390 s390x
 --without-tcmalloc \
 %endif
 --without-hadoop --with-radosgw --with-gtk2 \
-CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"
+CFLAGS="$RPM_OPT_FLAGS $EXTRA_CFLAGS" \
+CXXFLAGS="$RPM_OPT_FLAGS $EXTRA_CFLAGS" \
+LDFLAGS="$EXTRA_LDFLAGS"
 
 make %{?_smp_mflags}
 
 %install
-rm -rf $RPM_BUILD_ROOT
 make install DESTDIR=$RPM_BUILD_ROOT
 find $RPM_BUILD_ROOT -type f -name "*.la" -exec rm -f {} ';'
 find $RPM_BUILD_ROOT -type f -name "*.a" -exec rm -f {} ';'
@@ -111,9 +122,6 @@ mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log/ceph/
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/log/ceph/stat
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ceph
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %post
 /sbin/ldconfig
@@ -245,6 +253,10 @@ fi
 %{_bindir}/boto_tool
 
 %changelog
+* Wed Apr  4 2012 Niels de Vos <devos@fedoraproject.org> - 0.44-5
+- Add LDFLAGS=-lpthread on any ARM architecture
+- Add CFLAGS=-DAO_USE_PTHREAD_DEFS on ARMv5tel
+
 * Mon Mar 26 2012 Dan Horák <dan[at]danny.cz> 0.44-4
 - gperftools not available also on ppc
 
