@@ -1,6 +1,6 @@
 Name:          ceph
-Version:       0.45
-Release:       2%{?dist}
+Version:       0.46
+Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -30,6 +30,18 @@ Requires(preun): initscripts
 Ceph is a distributed network file system designed to provide excellent
 performance, reliability, and scalability.
 
+%package libs
+Summary:       Ceph libraries
+Group:         System Environment/Libraries
+%description libs
+Common libraries for Ceph distributed network file system
+
+%package libcephfs
+Summary:       Ceph libcephfs libraries
+Group:         System Environment/Libraries
+%description libcephfs
+libcephfs library for Ceph distributed network file system
+
 %package       fuse
 Summary:       Ceph fuse-based client
 Group:         System Environment/Base
@@ -43,6 +55,8 @@ Summary:     Ceph headers
 Group:       Development/Libraries
 License:     LGPLv2
 Requires:    %{name} = %{version}-%{release}
+Requires:    %{name}-libs = %{version}-%{release}
+Requires:    %{name}-libcephfs = %{version}-%{release}
 %description devel
 This package contains the headers needed to develop programs that use Ceph.
 
@@ -90,7 +104,7 @@ file system.
 
 %ifarch armv5tel
 # libatomic_ops does not have correct asm for ARMv5tel
-EXTRA_CFLAGS="-DAO_USE_PTHREAD_DEFS"
+EXTRA_CFLAGS="-DAO_USE_PTHREAD_DEFS -fvisibility-inlines-hidden"
 %endif
 %ifarch %{arm}
 # libatomic_ops seems to fallback on some pthread implementation on ARM
@@ -123,7 +137,6 @@ mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/ceph
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/bash_completion.d
 
 %post
-/sbin/ldconfig
 /sbin/chkconfig --add ceph
 
 %preun
@@ -133,10 +146,14 @@ if [ $1 = 0 ] ; then
 fi
 
 %postun
-/sbin/ldconfig
 if [ "$1" -ge "1" ] ; then
     /sbin/service ceph condrestart >/dev/null 2>&1 || :
 fi
+
+%post libs -p /sbin/ldconfig
+%postun libs -p /sbin/ldconfig
+%post libcephfs -p /sbin/ldconfig
+%postun libcephfs -p /sbin/ldconfig
 
 %files
 %defattr(-,root,root,-)
@@ -163,12 +180,6 @@ fi
 %{_bindir}/ceph-coverage
 %{_bindir}/ceph-dencoder
 %{_initrddir}/ceph
-%{_libdir}/libcephfs.so.*
-%{_libdir}/librados.so.*
-%{_libdir}/librbd.so.*
-%{_libdir}/librgw.so.*
-%{_libdir}/rados-classes/libcls_rbd.so.*
-%{_libdir}/rados-classes/libcls_rgw.so*
 /sbin/mkcephfs
 /sbin/mount.ceph
 %{_libdir}/ceph
@@ -200,11 +211,24 @@ fi
 %{_mandir}/man8/ceph-clsinfo.8*
 %{_mandir}/man8/ceph-dencoder.8*
 %{python_sitelib}/rados.py*
-%{python_sitelib}/rgw.py*
 %{python_sitelib}/rbd.py*
 %dir %{_localstatedir}/lib/ceph/
 %dir %{_localstatedir}/lib/ceph/tmp/
 %dir %{_localstatedir}/log/ceph/
+
+%files libs
+%defattr(-,root,root,-)
+%doc COPYING
+%{_libdir}/librados.so.*
+%{_libdir}/librbd.so.*
+%{_libdir}/librgw.so.*
+%{_libdir}/rados-classes/libcls_rbd.so.*
+%{_libdir}/rados-classes/libcls_rgw.so*
+
+%files libcephfs
+%defattr(-,root,root,-)
+%doc COPYING
+%{_libdir}/libcephfs.so.*
 
 %files fuse
 %defattr(-,root,root,-)
@@ -252,6 +276,10 @@ fi
 %{_bindir}/boto_tool
 
 %changelog
+* Wed May  9 2012 Josef Bacik <josef@toxicpanda.com> - 0.46-1
+- updated to upstream 0.46
+- broke out libcephfs (rhbz# 812975)
+
 * Mon Apr 23 2012 Dan Horák <dan[at]danny.cz> - 0.45-2
 - fix detection of C++11 atomic header
 
