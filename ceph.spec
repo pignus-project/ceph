@@ -104,7 +104,7 @@ file system.
 
 %ifarch armv5tel
 # libatomic_ops does not have correct asm for ARMv5tel
-EXTRA_CFLAGS="-DAO_USE_PTHREAD_DEFS -fvisibility-inlines-hidden"
+EXTRA_CFLAGS="-DAO_USE_PTHREAD_DEFS"
 %endif
 %ifarch %{arm}
 # libatomic_ops seems to fallback on some pthread implementation on ARM
@@ -118,7 +118,7 @@ EXTRA_LDFLAGS="-lpthread"
 %endif
 --without-hadoop --with-radosgw --with-gtk2 \
 CFLAGS="$RPM_OPT_FLAGS $EXTRA_CFLAGS" \
-CXXFLAGS="$RPM_OPT_FLAGS $EXTRA_CFLAGS" \
+CXXFLAGS="$RPM_OPT_FLAGS $EXTRA_CFLAGS -fvisibility-inlines-hidden" \
 LDFLAGS="$EXTRA_LDFLAGS"
 
 make %{?_smp_mflags}
@@ -210,6 +210,8 @@ fi
 %{_mandir}/man8/ceph-debugpack.8*
 %{_mandir}/man8/ceph-clsinfo.8*
 %{_mandir}/man8/ceph-dencoder.8*
+%{_mandir}/man1/obsync.1*
+%{_mandir}/man8/ceph-rbdnamer.8*
 %{python_sitelib}/rados.py*
 %{python_sitelib}/rbd.py*
 %dir %{_localstatedir}/lib/ceph/
