@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.46
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -278,6 +278,9 @@ fi
 %{_bindir}/boto_tool
 
 %changelog
+* Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.46-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Wed May  9 2012 Josef Bacik <josef@toxicpanda.com> - 0.46-1
 - updated to upstream 0.46
 - broke out libcephfs (rhbz# 812975)
