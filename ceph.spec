@@ -1,16 +1,14 @@
 Name:          ceph
-Version:       0.46
-Release:       2%{?dist}
+Version:       0.51
+Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
-URL:           http://ceph.newdream.net/
+URL:           http://ceph.com/
 
-Source:        http://ceph.newdream.net/download/%{name}-%{version}.tar.bz2
+Source:        http://ceph.com/download/%{name}-%{version}.tar.bz2
 Patch0:        ceph-init-fix.patch
 Patch1:        ceph.logrotate.patch
-# http://tracker.newdream.net/issues/2329
-Patch2:        ceph-gxx-atomic.patch
 
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm, libaio-devel,
@@ -82,22 +80,11 @@ obsync is a tool to synchronize objects between cloud object
 storage providers, such as Amazon S3 (or compatible services), a
 Ceph RADOS cluster, or a local directory.
 
-%package gcephtool
-Summary:        Ceph graphical monitoring tool
-Group:          System Environment/Base
-License:        LGPLv2
-Requires:       gtk2 gtkmm24
-BuildRequires:  gtk2-devel gtkmm24-devel
-
-%description gcephtool
-gcephtool is a graphical monitor for the clusters running the Ceph distributed
-file system.
 
 %prep
 %setup -q
 %patch0 -p1 -b .init
 %patch1 -p0
-%patch2 -p1 -b .atomic
 
 %build
 ./autogen.sh
@@ -182,6 +169,8 @@ fi
 %{_initrddir}/ceph
 /sbin/mkcephfs
 /sbin/mount.ceph
+/sbin/ceph-disk-activate
+/sbin/ceph-disk-prepare
 %{_libdir}/ceph
 %{_docdir}/ceph/sample.ceph.conf
 %{_docdir}/ceph/sample.fetch_config
@@ -223,9 +212,9 @@ fi
 %doc COPYING
 %{_libdir}/librados.so.*
 %{_libdir}/librbd.so.*
-%{_libdir}/librgw.so.*
 %{_libdir}/rados-classes/libcls_rbd.so.*
 %{_libdir}/rados-classes/libcls_rgw.so*
+%{_libdir}/rados-classes/libcls_lock*
 
 %files libcephfs
 %defattr(-,root,root,-)
@@ -242,29 +231,25 @@ fi
 %defattr(-,root,root,-)
 %doc COPYING
 %{_includedir}/cephfs/libcephfs.h
-%{_includedir}/crush/crush.h
-%{_includedir}/crush/hash.h
-%{_includedir}/crush/mapper.h
-%{_includedir}/crush/types.h
+#%{_includedir}/crush/crush.h
+#%{_includedir}/crush/hash.h
+#%{_includedir}/crush/mapper.h
+#%{_includedir}/crush/types.h
 %{_includedir}/rados/librados.h
 %{_includedir}/rados/librados.hpp
 %{_includedir}/rados/buffer.h
 %{_includedir}/rados/page.h
 %{_includedir}/rados/crc32c.h
-%{_includedir}/rados/librgw.h
+#%{_includedir}/rados/librgw.h
 %{_includedir}/rbd/librbd.h
 %{_includedir}/rbd/librbd.hpp
 %{_libdir}/libcephfs.so
 %{_libdir}/librados.so
-%{_libdir}/librgw.so
+#%{_libdir}/librgw.so
 %{_libdir}/librbd.so*
 %{_libdir}/rados-classes/libcls_rbd.so
 %{_mandir}/man8/librados-config.8*
 
-%files gcephtool
-%defattr(-,root,root,-)
-%{_bindir}/gceph
-%{_datadir}/ceph_tool/gui_resources/*
 
 %files radosgw
 %defattr(-,root,root,-)
@@ -278,6 +263,10 @@ fi
 %{_bindir}/boto_tool
 
 %changelog
+* Fri Sep 07 2012 David Nalley <david@gnsa.us> - 0.51-1
+- Updating to 0.51
+- Updated url and source url. 
+
 * Wed Jul 18 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.46-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
 
