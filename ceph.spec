@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.51
-Release:       3%{?dist}
+Release:       3%{?dist}.1
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -266,8 +266,9 @@ fi
 %{_bindir}/boto_tool
 
 %changelog
-* Mon Sep 24 2012 Jonathan Dieter <jdieter@lesbg.com> - 0.51-3
+* Mon Sep 24 2012 Jonathan Dieter <jdieter@lesbg.com> - 0.51-3.1
 - Fix automake 1.12 error
+- Rebuild after buildroot was messed up
 
 * Tue Sep 18 2012 Jonathan Dieter <jdieter@lesbg.com> - 0.51-2
 - Use system leveldb
