@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.51
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -19,6 +19,7 @@ BuildRequires: gperftools-devel
 BuildRequires: cryptopp-devel, libatomic_ops-devel, gcc-c++
 BuildRequires: pkgconfig, libcurl-devel, keyutils-libs-devel
 BuildRequires: gtkmm24-devel, gtk2-devel, libuuid, libuuid-devel
+BuildRequires: leveldb-devel, snappy-devel
 
 Requires(post): chkconfig, binutils, libedit
 Requires(preun): chkconfig
@@ -103,7 +104,7 @@ EXTRA_LDFLAGS="-lpthread"
 %ifarch ppc ppc64 s390 s390x
 --without-tcmalloc \
 %endif
---without-hadoop --with-radosgw --with-gtk2 \
+--with-system-leveldb --without-hadoop --with-radosgw --with-gtk2 \
 CFLAGS="$RPM_OPT_FLAGS $EXTRA_CFLAGS" \
 CXXFLAGS="$RPM_OPT_FLAGS $EXTRA_CFLAGS -fvisibility-inlines-hidden" \
 LDFLAGS="$EXTRA_LDFLAGS"
@@ -263,6 +264,9 @@ fi
 %{_bindir}/boto_tool
 
 %changelog
+* Tue Sep 18 2012 Jonathan Dieter <jdieter@lesbg.com> - 0.51-2
+- Use system leveldb
+
 * Fri Sep 07 2012 David Nalley <david@gnsa.us> - 0.51-1
 - Updating to 0.51
 - Updated url and source url. 
