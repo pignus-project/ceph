@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.51
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -9,6 +9,7 @@ URL:           http://ceph.com/
 Source:        http://ceph.com/download/%{name}-%{version}.tar.bz2
 Patch0:        ceph-init-fix.patch
 Patch1:        ceph.logrotate.patch
+Patch2:        ceph-build-support-for-automake-1.12.patch
 
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm, libaio-devel,
@@ -86,6 +87,7 @@ Ceph RADOS cluster, or a local directory.
 %setup -q
 %patch0 -p1 -b .init
 %patch1 -p0
+%patch2 -p1
 
 %build
 ./autogen.sh
@@ -264,6 +266,9 @@ fi
 %{_bindir}/boto_tool
 
 %changelog
+* Mon Sep 24 2012 Jonathan Dieter <jdieter@lesbg.com> - 0.51-3
+- Fix automake 1.12 error
+
 * Tue Sep 18 2012 Jonathan Dieter <jdieter@lesbg.com> - 0.51-2
 - Use system leveldb
 
