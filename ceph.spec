@@ -1,6 +1,6 @@
 Name:          ceph
-Version:       0.51
-Release:       3%{?dist}
+Version:       0.53
+Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -71,17 +71,6 @@ BuildRequires:  expat-devel
 radosgw is an S3 HTTP REST gateway for the RADOS object store. It is
 implemented as a FastCGI module using libfcgi, and can be used in
 conjunction with any FastCGI capable web server.
-
-%package obsync
-Summary:        synchronize data between cloud object storage providers or a local directory
-Group:          Productivity/Networking/Other
-License:        LGPLv2
-Requires:       python, python-boto
-%description obsync
-obsync is a tool to synchronize objects between cloud object
-storage providers, such as Amazon S3 (or compatible services), a
-Ceph RADOS cluster, or a local directory.
-
 
 %prep
 %setup -q
@@ -174,6 +163,7 @@ fi
 /sbin/mount.ceph
 /sbin/ceph-disk-activate
 /sbin/ceph-disk-prepare
+/sbin/ceph-create-keys
 %{_libdir}/ceph
 %{_docdir}/ceph/sample.ceph.conf
 %{_docdir}/ceph/sample.fetch_config
@@ -202,7 +192,6 @@ fi
 %{_mandir}/man8/ceph-debugpack.8*
 %{_mandir}/man8/ceph-clsinfo.8*
 %{_mandir}/man8/ceph-dencoder.8*
-%{_mandir}/man1/obsync.1*
 %{_mandir}/man8/ceph-rbdnamer.8*
 %{python_sitelib}/rados.py*
 %{python_sitelib}/rbd.py*
@@ -218,6 +207,8 @@ fi
 %{_libdir}/rados-classes/libcls_rbd.so.*
 %{_libdir}/rados-classes/libcls_rgw.so*
 %{_libdir}/rados-classes/libcls_lock*
+%{_libdir}/rados-classes/libcls_kvs*
+%{_libdir}/rados-classes/libcls_refcount*
 
 %files libcephfs
 %defattr(-,root,root,-)
@@ -246,6 +237,7 @@ fi
 #%{_includedir}/rados/librgw.h
 %{_includedir}/rbd/librbd.h
 %{_includedir}/rbd/librbd.hpp
+%{_includedir}/rbd/features.h
 %{_libdir}/libcephfs.so
 %{_libdir}/librados.so
 #%{_libdir}/librgw.so
@@ -260,12 +252,10 @@ fi
 %{_bindir}/radosgw-admin
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
-%files obsync
-%defattr(-,root,root,-)
-%{_bindir}/obsync
-%{_bindir}/boto_tool
-
 %changelog
+* Thu Nov  1 2012 Josef Bacik <josef@toxicpanda.com> - 0.53-1
+- Update to 0.53
+
 * Mon Sep 24 2012 Jonathan Dieter <jdieter@lesbg.com> - 0.51-3
 - Fix automake 1.12 error
 
