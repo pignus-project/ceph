@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.53
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -253,6 +253,9 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Mon Feb 11 2013 Richard W.M. Jones <rjones@redhat.com> - 0.53-2
+- Rebuilt to try to fix boost dependency problem in Rawhide.
+
 * Thu Nov  1 2012 Josef Bacik <josef@toxicpanda.com> - 0.53-1
 - Update to 0.53
 
