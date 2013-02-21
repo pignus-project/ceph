@@ -1,6 +1,6 @@
 Name:          ceph
-Version:       0.51
-Release:       3%{?dist}.1
+Version:       0.56.3
+Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -8,8 +8,7 @@ URL:           http://ceph.com/
 
 Source:        http://ceph.com/download/%{name}-%{version}.tar.bz2
 Patch0:        ceph-init-fix.patch
-Patch1:        ceph.logrotate.patch
-Patch2:        ceph-build-support-for-automake-1.12.patch
+Patch1:        ceph-build-support-for-automake-1.12.patch
 
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm, libaio-devel,
@@ -72,22 +71,10 @@ radosgw is an S3 HTTP REST gateway for the RADOS object store. It is
 implemented as a FastCGI module using libfcgi, and can be used in
 conjunction with any FastCGI capable web server.
 
-%package obsync
-Summary:        synchronize data between cloud object storage providers or a local directory
-Group:          Productivity/Networking/Other
-License:        LGPLv2
-Requires:       python, python-boto
-%description obsync
-obsync is a tool to synchronize objects between cloud object
-storage providers, such as Amazon S3 (or compatible services), a
-Ceph RADOS cluster, or a local directory.
-
-
 %prep
 %setup -q
 %patch0 -p1 -b .init
-%patch1 -p0
-%patch2 -p1
+%patch1 -p1
 
 %build
 ./autogen.sh
@@ -101,7 +88,7 @@ EXTRA_CFLAGS="-DAO_USE_PTHREAD_DEFS"
 EXTRA_LDFLAGS="-lpthread"
 %endif
 
-%{configure} --prefix=/usr --sbindir=/sbin \
+%{configure} --prefix=/usr --sbindir=%{_sbindir} \
 --localstatedir=/var --sysconfdir=/etc \
 %ifarch ppc ppc64 s390 s390x
 --without-tcmalloc \
@@ -170,10 +157,11 @@ fi
 %{_bindir}/ceph-coverage
 %{_bindir}/ceph-dencoder
 %{_initrddir}/ceph
-/sbin/mkcephfs
-/sbin/mount.ceph
-/sbin/ceph-disk-activate
-/sbin/ceph-disk-prepare
+%{_sbindir}/mkcephfs
+%{_sbindir}/mount.ceph
+%{_sbindir}/ceph-disk-activate
+%{_sbindir}/ceph-disk-prepare
+%{_sbindir}/ceph-create-keys
 %{_libdir}/ceph
 %{_docdir}/ceph/sample.ceph.conf
 %{_docdir}/ceph/sample.fetch_config
@@ -202,7 +190,6 @@ fi
 %{_mandir}/man8/ceph-debugpack.8*
 %{_mandir}/man8/ceph-clsinfo.8*
 %{_mandir}/man8/ceph-dencoder.8*
-%{_mandir}/man1/obsync.1*
 %{_mandir}/man8/ceph-rbdnamer.8*
 %{python_sitelib}/rados.py*
 %{python_sitelib}/rbd.py*
@@ -218,6 +205,8 @@ fi
 %{_libdir}/rados-classes/libcls_rbd.so.*
 %{_libdir}/rados-classes/libcls_rgw.so*
 %{_libdir}/rados-classes/libcls_lock*
+%{_libdir}/rados-classes/libcls_kvs*
+%{_libdir}/rados-classes/libcls_refcount*
 
 %files libcephfs
 %defattr(-,root,root,-)
@@ -228,6 +217,7 @@ fi
 %defattr(-,root,root,-)
 %doc COPYING
 %{_bindir}/ceph-fuse
+%{_sbindir}/mount.fuse.ceph
 %{_mandir}/man8/ceph-fuse.8*
 
 %files devel
@@ -246,6 +236,7 @@ fi
 #%{_includedir}/rados/librgw.h
 %{_includedir}/rbd/librbd.h
 %{_includedir}/rbd/librbd.hpp
+%{_includedir}/rbd/features.h
 %{_libdir}/libcephfs.so
 %{_libdir}/librados.so
 #%{_libdir}/librgw.so
@@ -260,13 +251,17 @@ fi
 %{_bindir}/radosgw-admin
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
-%files obsync
-%defattr(-,root,root,-)
-%{_bindir}/obsync
-%{_bindir}/boto_tool
-
 %changelog
-* Mon Sep 24 2012 Jonathan Dieter <jdieter@lesbg.com> - 0.51-3.1
+* Wed Feb 20 2013 Josef Bacik <josef@toxicpanda.com> - 0.56.3-1
+- Update to 0.56.3
+
+* Mon Feb 11 2013 Richard W.M. Jones <rjones@redhat.com> - 0.53-2
+- Rebuilt to try to fix boost dependency problem in Rawhide.
+
+* Thu Nov  1 2012 Josef Bacik <josef@toxicpanda.com> - 0.53-1
+- Update to 0.53
+
+* Mon Sep 24 2012 Jonathan Dieter <jdieter@lesbg.com> - 0.51-3
 - Fix automake 1.12 error
 - Rebuild after buildroot was messed up
 
