@@ -1,6 +1,6 @@
 Name:          ceph
-Version:       0.53
-Release:       2%{?dist}
+Version:       0.56.3
+Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -8,8 +8,7 @@ URL:           http://ceph.com/
 
 Source:        http://ceph.com/download/%{name}-%{version}.tar.bz2
 Patch0:        ceph-init-fix.patch
-Patch1:        ceph.logrotate.patch
-Patch2:        ceph-build-support-for-automake-1.12.patch
+Patch1:        ceph-build-support-for-automake-1.12.patch
 
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm, libaio-devel,
@@ -75,8 +74,7 @@ conjunction with any FastCGI capable web server.
 %prep
 %setup -q
 %patch0 -p1 -b .init
-%patch1 -p0
-%patch2 -p1
+%patch1 -p1
 
 %build
 ./autogen.sh
@@ -90,7 +88,7 @@ EXTRA_CFLAGS="-DAO_USE_PTHREAD_DEFS"
 EXTRA_LDFLAGS="-lpthread"
 %endif
 
-%{configure} --prefix=/usr --sbindir=/sbin \
+%{configure} --prefix=/usr --sbindir=%{_sbindir} \
 --localstatedir=/var --sysconfdir=/etc \
 %ifarch ppc ppc64 s390 s390x
 --without-tcmalloc \
@@ -159,11 +157,11 @@ fi
 %{_bindir}/ceph-coverage
 %{_bindir}/ceph-dencoder
 %{_initrddir}/ceph
-/sbin/mkcephfs
-/sbin/mount.ceph
-/sbin/ceph-disk-activate
-/sbin/ceph-disk-prepare
-/sbin/ceph-create-keys
+%{_sbindir}/mkcephfs
+%{_sbindir}/mount.ceph
+%{_sbindir}/ceph-disk-activate
+%{_sbindir}/ceph-disk-prepare
+%{_sbindir}/ceph-create-keys
 %{_libdir}/ceph
 %{_docdir}/ceph/sample.ceph.conf
 %{_docdir}/ceph/sample.fetch_config
@@ -219,6 +217,7 @@ fi
 %defattr(-,root,root,-)
 %doc COPYING
 %{_bindir}/ceph-fuse
+%{_sbindir}/mount.fuse.ceph
 %{_mandir}/man8/ceph-fuse.8*
 
 %files devel
@@ -253,6 +252,9 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Wed Feb 20 2013 Josef Bacik <josef@toxicpanda.com> - 0.56.3-1
+- Update to 0.56.3
+
 * Mon Feb 11 2013 Richard W.M. Jones <rjones@redhat.com> - 0.53-2
 - Rebuilt to try to fix boost dependency problem in Rawhide.
 
