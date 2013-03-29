@@ -1,5 +1,5 @@
 Name:          ceph
-Version:       0.56.3
+Version:       0.56.4
 Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
@@ -9,6 +9,7 @@ URL:           http://ceph.com/
 Source:        http://ceph.com/download/%{name}-%{version}.tar.bz2
 Patch0:        ceph-init-fix.patch
 Patch1:        ceph-build-support-for-automake-1.12.patch
+Patch2:        0001-silence-logrotate-some-more.patch
 
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm, libaio-devel,
@@ -16,7 +17,7 @@ BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm, libaio-devel,
 %ifnarch ppc ppc64 s390 s390x
 BuildRequires: gperftools-devel
 %endif
-BuildRequires: cryptopp-devel, libatomic_ops-devel, gcc-c++
+BuildRequires: cryptopp-devel, libatomic_ops-static, gcc-c++
 BuildRequires: pkgconfig, libcurl-devel, keyutils-libs-devel
 BuildRequires: gtkmm24-devel, gtk2-devel, libuuid, libuuid-devel
 BuildRequires: leveldb-devel, snappy-devel
@@ -75,6 +76,7 @@ conjunction with any FastCGI capable web server.
 %setup -q
 %patch0 -p1 -b .init
 %patch1 -p1
+%patch2 -p1
 
 %build
 ./autogen.sh
@@ -252,6 +254,10 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Fri Mar 29 2013 Josef Bacik <josef@toxicpanda.com> - 0.56.4-1
+- Update to 0.56.4
+- Add upstream d02340d90c9d30d44c962bea7171db3fe3bfba8e to fix logrotate
+
 * Wed Feb 20 2013 Josef Bacik <josef@toxicpanda.com> - 0.56.3-1
 - Update to 0.56.3
 
