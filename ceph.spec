@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.56.4
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -254,6 +254,9 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Sat Jul 27 2013 pmachata@redhat.com - 0.56.4-2
+- Rebuild for boost 1.54.0
+
 * Fri Mar 29 2013 Josef Bacik <josef@toxicpanda.com> - 0.56.4-1
 - Update to 0.56.4
 - Add upstream d02340d90c9d30d44c962bea7171db3fe3bfba8e to fix logrotate
