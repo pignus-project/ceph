@@ -1,6 +1,6 @@
 Name:          ceph
-Version:       0.56.4
-Release:       2%{?dist}
+Version:       0.61.7
+Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -9,7 +9,7 @@ URL:           http://ceph.com/
 Source:        http://ceph.com/download/%{name}-%{version}.tar.bz2
 Patch0:        ceph-init-fix.patch
 Patch1:        ceph-build-support-for-automake-1.12.patch
-Patch2:        0001-silence-logrotate-some-more.patch
+Patch2:        ceph-fix-sbin-target.patch
 
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm, libaio-devel,
@@ -90,8 +90,8 @@ EXTRA_CFLAGS="-DAO_USE_PTHREAD_DEFS"
 EXTRA_LDFLAGS="-lpthread"
 %endif
 
-%{configure} --prefix=/usr --sbindir=%{_sbindir} \
---localstatedir=/var --sysconfdir=/etc \
+%{configure} --prefix=%{_prefix} --sbindir=%{_sbindir} \
+--localstatedir=%{_localstatedir} --sysconfdir=%{_sysconfdir} \
 %ifarch ppc ppc64 s390 s390x
 --without-tcmalloc \
 %endif
@@ -138,6 +138,7 @@ fi
 %defattr(-,root,root,-)
 %doc README COPYING
 %dir %{_sysconfdir}/ceph
+%dir %{_docdir}/ceph
 %{_bindir}/ceph
 %{_bindir}/cephfs
 %{_bindir}/ceph-conf
@@ -158,15 +159,17 @@ fi
 %{_bindir}/ceph-debugpack
 %{_bindir}/ceph-coverage
 %{_bindir}/ceph-dencoder
+%{_bindir}/ceph_filestore_dump
+%{_bindir}/ceph_mon_store_converter
 %{_initrddir}/ceph
 %{_sbindir}/mkcephfs
 %{_sbindir}/mount.ceph
 %{_sbindir}/ceph-disk-activate
 %{_sbindir}/ceph-disk-prepare
 %{_sbindir}/ceph-create-keys
+%{_sbindir}/ceph-disk
+%{_sbindir}/ceph-disk-udev
 %{_libdir}/ceph
-%{_docdir}/ceph/sample.ceph.conf
-%{_docdir}/ceph/sample.fetch_config
 %config(noreplace) %{_sysconfdir}/logrotate.d/ceph
 %config(noreplace) %{_sysconfdir}/bash_completion.d/rados
 %config(noreplace) %{_sysconfdir}/bash_completion.d/ceph
@@ -195,6 +198,7 @@ fi
 %{_mandir}/man8/ceph-rbdnamer.8*
 %{python_sitelib}/rados.py*
 %{python_sitelib}/rbd.py*
+%{python_sitelib}/cephfs.py*
 %dir %{_localstatedir}/lib/ceph/
 %dir %{_localstatedir}/lib/ceph/tmp/
 %dir %{_localstatedir}/log/ceph/
@@ -219,8 +223,10 @@ fi
 %defattr(-,root,root,-)
 %doc COPYING
 %{_bindir}/ceph-fuse
+%{_bindir}/rbd-fuse
 %{_sbindir}/mount.fuse.ceph
 %{_mandir}/man8/ceph-fuse.8*
+%{_mandir}/man8/rbd-fuse.8*
 
 %files devel
 %defattr(-,root,root,-)
@@ -232,6 +238,8 @@ fi
 #%{_includedir}/crush/types.h
 %{_includedir}/rados/librados.h
 %{_includedir}/rados/librados.hpp
+%{_includedir}/rados/rados_types.h
+%{_includedir}/rados/rados_types.hpp
 %{_includedir}/rados/buffer.h
 %{_includedir}/rados/page.h
 %{_includedir}/rados/crc32c.h
@@ -254,6 +262,9 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Mon Jul 29 2013 Josef Bacik <josef@toxicpanda.com> - 0.61.7-1
+- Update to 0.61.7
+
 * Sat Jul 27 2013 pmachata@redhat.com - 0.56.4-2
 - Rebuild for boost 1.54.0
 
@@ -382,7 +393,7 @@ fi
 - Include rbdtool
 - Remove misc debugging, test binaries
 
-* Thu Apr 30 2010 Josef Bacik <josef@toxicpanda.com> 0.19.1-4
+* Fri Apr 30 2010 Josef Bacik <josef@toxicpanda.com> 0.19.1-4
 - Add java-devel and java tricks to get hadoop to build
 
 * Mon Apr 26 2010 Josef Bacik <josef@toxicpanda.com> 0.19.1-3
