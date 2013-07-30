@@ -170,7 +170,7 @@ fi
 %{_sbindir}/ceph-disk
 %{_sbindir}/ceph-disk-udev
 %{_libdir}/ceph
-%{_docdir}/ceph/sample.conf
+%{_docdir}/ceph/sample.ceph.conf
 %{_docdir}/ceph/sample.fetch_config
 %config(noreplace) %{_sysconfdir}/logrotate.d/ceph
 %config(noreplace) %{_sysconfdir}/bash_completion.d/rados
