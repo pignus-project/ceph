@@ -1,6 +1,6 @@
 Name:          ceph
-Version:       0.61.7
-Release:       3%{?dist}
+Version:       0.67.3
+Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -160,6 +160,8 @@ fi
 %{_bindir}/ceph-dencoder
 %{_bindir}/ceph_filestore_dump
 %{_bindir}/ceph_mon_store_converter
+%{_bindir}/ceph-post-file
+%{_bindir}/ceph-rest-api
 %{_initrddir}/ceph
 %{_sbindir}/mkcephfs
 %{_sbindir}/mount.ceph
@@ -195,12 +197,18 @@ fi
 %{_mandir}/man8/ceph-clsinfo.8*
 %{_mandir}/man8/ceph-dencoder.8*
 %{_mandir}/man8/ceph-rbdnamer.8*
+%{_mandir}/man8/ceph-rest-api.8*
+%{_mandir}/man8/ceph-post-file.8*
 %{python_sitelib}/rados.py*
 %{python_sitelib}/rbd.py*
 %{python_sitelib}/cephfs.py*
+%{python_sitelib}/ceph_argparse.py*
+%{python_sitelib}/ceph_rest_api.py*
 %dir %{_localstatedir}/lib/ceph/
 %dir %{_localstatedir}/lib/ceph/tmp/
 %dir %{_localstatedir}/log/ceph/
+%{_datadir}/ceph/id_dsa_drop.ceph.com*
+%{_datadir}/ceph/known_hosts_drop.ceph.com
 
 %files libs
 %doc COPYING
@@ -212,6 +220,10 @@ fi
 %{_libdir}/rados-classes/libcls_lock*
 %{_libdir}/rados-classes/libcls_kvs*
 %{_libdir}/rados-classes/libcls_refcount*
+%{_libdir}/rados-classes/libcls_log*
+%{_libdir}/rados-classes/libcls_replica_log*
+%{_libdir}/rados-classes/libcls_statelog*
+%{_libdir}/rados-classes/libcls_version*
 
 %files libcephfs
 %doc COPYING
@@ -261,6 +273,9 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Wed Sep 11 2013 Josef Bacik <josef@toxicpanda.com> - 0.67.3-1
+- update to 0.67.3
+
 * Wed Sep 11 2013 Michael Schwendt <mschwendt@fedoraproject.org> - 0.61.7-3
 - let base package include all its documentation files via %%doc magic,
   so for Fedora 20 Unversioned Docdirs no files are included accidentally
