@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.67.3
-Release:       2%{?dist}
+Release:       3%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -15,7 +15,7 @@ Patch3:        ceph-non-x86_64.patch
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm, libaio-devel,
 # google-perftools is not available on these:
-%ifnarch ppc ppc64 s390 s390x
+%ifnarch ppc ppc64 s390 s390x aarch64
 BuildRequires: gperftools-devel
 %endif
 BuildRequires: cryptopp-devel, libatomic_ops-static, gcc-c++
@@ -275,6 +275,9 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Sat Nov 30 2013 Peter Robinson <pbrobinson@fedoraproject.org> 0.67.3-3
+- gperftools not currently available on aarch64
+
 * Mon Oct 07 2013 Dan Horák <dan[at]danny.cz> - 0.67.3-2
 - fix build on non-x86_64 64-bit arches
 
