@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.67.3
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -94,7 +94,7 @@ EXTRA_LDFLAGS="-lpthread"
 
 %{configure} --prefix=%{_prefix} --sbindir=%{_sbindir} \
 --localstatedir=%{_localstatedir} --sysconfdir=%{_sysconfdir} \
-%ifarch ppc ppc64 s390 s390x
+%ifarch ppc ppc64 s390 s390x aarch64
 --without-tcmalloc \
 %endif
 --with-system-leveldb --without-hadoop --with-radosgw --with-gtk2 \
@@ -275,6 +275,9 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Wed Dec 18 2013 Marcin Juszkiewicz <mjuszkiewicz@redhat.com> 0.67.3-4
+- build without tcmalloc on aarch64 (no gperftools)
+
 * Sat Nov 30 2013 Peter Robinson <pbrobinson@fedoraproject.org> 0.67.3-3
 - gperftools not currently available on aarch64
 
