@@ -12,7 +12,7 @@ Patch0:        ceph-init-fix.patch
 Patch1:        ceph-build-support-for-automake-1.12.patch
 Patch2:        ceph-fix-sbin-target.patch
 
-BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
+BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel,
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm, libaio-devel,
 # google-perftools is not available on these:
 %ifnarch ppc ppc64 s390 s390x aarch64
