@@ -1,21 +1,21 @@
 Name:          ceph
-Version:       0.67.3
-Release:       2%{?dist}
+Version:       0.72.2
+Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
-URL:           http://ceph.com/
+URL:           https://ceph.com/
 
-Source:        http://ceph.com/download/%{name}-%{version}.tar.bz2
+Source:        https://ceph.com/download/%{name}-%{version}.tar.bz2
 Patch0:        ceph-init-fix.patch
+# https://github.com/ceph/ceph/pull/1051
 Patch1:        ceph-build-support-for-automake-1.12.patch
 Patch2:        ceph-fix-sbin-target.patch
-Patch3:        ceph-non-x86_64.patch
 
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel, 
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm, libaio-devel,
 # google-perftools is not available on these:
-%ifnarch ppc ppc64 s390 s390x
+%ifnarch ppc ppc64 s390 s390x aarch64
 BuildRequires: gperftools-devel
 %endif
 BuildRequires: cryptopp-devel, libatomic_ops-static, gcc-c++
@@ -78,7 +78,6 @@ conjunction with any FastCGI capable web server.
 %patch0 -p1 -b .init
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1 -b .non-x86_64
 
 %build
 ./autogen.sh
@@ -94,7 +93,7 @@ EXTRA_LDFLAGS="-lpthread"
 
 %{configure} --prefix=%{_prefix} --sbindir=%{_sbindir} \
 --localstatedir=%{_localstatedir} --sysconfdir=%{_sysconfdir} \
-%ifarch ppc ppc64 s390 s390x
+%ifarch ppc ppc64 s390 s390x aarch64
 --without-tcmalloc \
 %endif
 --with-system-leveldb --without-hadoop --with-radosgw --with-gtk2 \
@@ -145,6 +144,7 @@ fi
 %{_bindir}/cephfs
 %{_bindir}/ceph-conf
 %{_bindir}/ceph-clsinfo
+%{_bindir}/ceph_filestore_tool
 %{_bindir}/crushtool
 %{_bindir}/monmaptool
 %{_bindir}/osdmaptool
@@ -216,16 +216,24 @@ fi
 %doc COPYING
 %{_libdir}/librados.so.*
 %{_libdir}/librbd.so.*
+%dir %{_libdir}/erasure-code
+%{_libdir}/erasure-code/libec_example.so.*
+%{_libdir}/erasure-code/libec_fail_to_initialize.so.*
+%{_libdir}/erasure-code/libec_fail_to_register.so.*
+%{_libdir}/erasure-code/libec_hangs.so.*
+%{_libdir}/erasure-code/libec_jerasure.so.*
+%{_libdir}/erasure-code/libec_missing_entry_point.so.*
 %dir %{_libdir}/rados-classes
-%{_libdir}/rados-classes/libcls_rbd.so*
-%{_libdir}/rados-classes/libcls_rgw.so*
-%{_libdir}/rados-classes/libcls_lock*
-%{_libdir}/rados-classes/libcls_kvs*
-%{_libdir}/rados-classes/libcls_refcount*
-%{_libdir}/rados-classes/libcls_log*
-%{_libdir}/rados-classes/libcls_replica_log*
-%{_libdir}/rados-classes/libcls_statelog*
-%{_libdir}/rados-classes/libcls_version*
+%{_libdir}/rados-classes/libcls_hello.so.*
+%{_libdir}/rados-classes/libcls_rbd.so.*
+%{_libdir}/rados-classes/libcls_rgw.so.*
+%{_libdir}/rados-classes/libcls_lock.so.*
+%{_libdir}/rados-classes/libcls_kvs.so.*
+%{_libdir}/rados-classes/libcls_refcount.so.*
+%{_libdir}/rados-classes/libcls_log.so.*
+%{_libdir}/rados-classes/libcls_replica_log.so.*
+%{_libdir}/rados-classes/libcls_statelog.so.*
+%{_libdir}/rados-classes/libcls_version.so.*
 
 %files libcephfs
 %doc COPYING
@@ -243,11 +251,6 @@ fi
 %doc COPYING
 %dir %{_includedir}/cephfs
 %{_includedir}/cephfs/libcephfs.h
-#%dir %{_includedir}/crush
-#%{_includedir}/crush/crush.h
-#%{_includedir}/crush/hash.h
-#%{_includedir}/crush/mapper.h
-#%{_includedir}/crush/types.h
 %dir %{_includedir}/rados
 %{_includedir}/rados/librados.h
 %{_includedir}/rados/librados.hpp
@@ -256,15 +259,29 @@ fi
 %{_includedir}/rados/buffer.h
 %{_includedir}/rados/page.h
 %{_includedir}/rados/crc32c.h
-#%{_includedir}/rados/librgw.h
 %dir %{_includedir}/rbd
 %{_includedir}/rbd/librbd.h
 %{_includedir}/rbd/librbd.hpp
 %{_includedir}/rbd/features.h
+%{_libdir}/erasure-code/libec_example.so
+%{_libdir}/erasure-code/libec_fail_to_initialize.so
+%{_libdir}/erasure-code/libec_fail_to_register.so
+%{_libdir}/erasure-code/libec_hangs.so
+%{_libdir}/erasure-code/libec_jerasure.so
+%{_libdir}/erasure-code/libec_missing_entry_point.so
 %{_libdir}/libcephfs.so
 %{_libdir}/librados.so
-#%{_libdir}/librgw.so
 %{_libdir}/librbd.so
+%{_libdir}/rados-classes/libcls_hello.so
+%{_libdir}/rados-classes/libcls_rbd.so
+%{_libdir}/rados-classes/libcls_rgw.so
+%{_libdir}/rados-classes/libcls_lock.so
+%{_libdir}/rados-classes/libcls_kvs.so
+%{_libdir}/rados-classes/libcls_refcount.so
+%{_libdir}/rados-classes/libcls_log.so
+%{_libdir}/rados-classes/libcls_replica_log.so
+%{_libdir}/rados-classes/libcls_statelog.so
+%{_libdir}/rados-classes/libcls_version.so
 %{_bindir}/librados-config
 %{_mandir}/man8/librados-config.8*
 
@@ -275,6 +292,18 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Mon Jan 06 2014 Ken Dreyer <ken.dreyer@inktank.com> 0.72.2-1
+- Update to latest stable upstream release
+- Use HTTPS for URLs
+- Submit Automake 1.12 patch upstream
+- Move unversioned shared libs from ceph-libs into ceph-devel
+
+* Wed Dec 18 2013 Marcin Juszkiewicz <mjuszkiewicz@redhat.com> 0.67.3-4
+- build without tcmalloc on aarch64 (no gperftools)
+
+* Sat Nov 30 2013 Peter Robinson <pbrobinson@fedoraproject.org> 0.67.3-3
+- gperftools not currently available on aarch64
+
 * Mon Oct 07 2013 Dan Horák <dan[at]danny.cz> - 0.67.3-2
 - fix build on non-x86_64 64-bit arches
 
