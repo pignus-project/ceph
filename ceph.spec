@@ -1,6 +1,6 @@
 Name:          ceph
 Version:       0.72.2
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -217,23 +217,29 @@ fi
 %{_libdir}/librados.so.*
 %{_libdir}/librbd.so.*
 %dir %{_libdir}/erasure-code
-%{_libdir}/erasure-code/libec_example.so.*
-%{_libdir}/erasure-code/libec_fail_to_initialize.so.*
-%{_libdir}/erasure-code/libec_fail_to_register.so.*
-%{_libdir}/erasure-code/libec_hangs.so.*
-%{_libdir}/erasure-code/libec_jerasure.so.*
-%{_libdir}/erasure-code/libec_missing_entry_point.so.*
+# Warning to future maintainers: Note that the libec_ and libcls_ unversioned
+# shared objects are included here in the libs subpackage. These files are
+# plugins that Ceph loads with dlopen(). They belong here in -libs, not
+# -devel.
+%{_libdir}/erasure-code/libec_example.so*
+%{_libdir}/erasure-code/libec_fail_to_initialize.so*
+%{_libdir}/erasure-code/libec_fail_to_register.so*
+%{_libdir}/erasure-code/libec_hangs.so*
+%{_libdir}/erasure-code/libec_jerasure.so*
+%{_libdir}/erasure-code/libec_missing_entry_point.so*
 %dir %{_libdir}/rados-classes
-%{_libdir}/rados-classes/libcls_hello.so.*
-%{_libdir}/rados-classes/libcls_rbd.so.*
-%{_libdir}/rados-classes/libcls_rgw.so.*
-%{_libdir}/rados-classes/libcls_lock.so.*
-%{_libdir}/rados-classes/libcls_kvs.so.*
-%{_libdir}/rados-classes/libcls_refcount.so.*
-%{_libdir}/rados-classes/libcls_log.so.*
-%{_libdir}/rados-classes/libcls_replica_log.so.*
-%{_libdir}/rados-classes/libcls_statelog.so.*
-%{_libdir}/rados-classes/libcls_version.so.*
+# See warning note above about unversioned shared objects here. These belong
+# here in -libs (not -devel).
+%{_libdir}/rados-classes/libcls_hello.so*
+%{_libdir}/rados-classes/libcls_rbd.so*
+%{_libdir}/rados-classes/libcls_rgw.so*
+%{_libdir}/rados-classes/libcls_lock.so*
+%{_libdir}/rados-classes/libcls_kvs.so*
+%{_libdir}/rados-classes/libcls_refcount.so*
+%{_libdir}/rados-classes/libcls_log.so*
+%{_libdir}/rados-classes/libcls_replica_log.so*
+%{_libdir}/rados-classes/libcls_statelog.so*
+%{_libdir}/rados-classes/libcls_version.so*
 
 %files libcephfs
 %doc COPYING
@@ -263,25 +269,9 @@ fi
 %{_includedir}/rbd/librbd.h
 %{_includedir}/rbd/librbd.hpp
 %{_includedir}/rbd/features.h
-%{_libdir}/erasure-code/libec_example.so
-%{_libdir}/erasure-code/libec_fail_to_initialize.so
-%{_libdir}/erasure-code/libec_fail_to_register.so
-%{_libdir}/erasure-code/libec_hangs.so
-%{_libdir}/erasure-code/libec_jerasure.so
-%{_libdir}/erasure-code/libec_missing_entry_point.so
 %{_libdir}/libcephfs.so
 %{_libdir}/librados.so
 %{_libdir}/librbd.so
-%{_libdir}/rados-classes/libcls_hello.so
-%{_libdir}/rados-classes/libcls_rbd.so
-%{_libdir}/rados-classes/libcls_rgw.so
-%{_libdir}/rados-classes/libcls_lock.so
-%{_libdir}/rados-classes/libcls_kvs.so
-%{_libdir}/rados-classes/libcls_refcount.so
-%{_libdir}/rados-classes/libcls_log.so
-%{_libdir}/rados-classes/libcls_replica_log.so
-%{_libdir}/rados-classes/libcls_statelog.so
-%{_libdir}/rados-classes/libcls_version.so
 %{_bindir}/librados-config
 %{_mandir}/man8/librados-config.8*
 
@@ -292,6 +282,10 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Thu Feb 06 2014 Ken Dreyer <ken.dreyer@inktank.com> - 0.72.2-2
+- Move plugins from -devel into -libs package (#891993). Thanks Michael
+  Schwendt.
+
 * Mon Jan 06 2014 Ken Dreyer <ken.dreyer@inktank.com> 0.72.2-1
 - Update to latest stable upstream release
 - Use HTTPS for URLs
