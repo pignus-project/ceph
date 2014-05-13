@@ -1,6 +1,9 @@
+
+%global _hardened_build 1
+
 Name:          ceph
-Version:       0.72.2
-Release:       2%{?dist}
+Version:       0.80.1
+Release:       1%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -9,8 +12,7 @@ URL:           https://ceph.com/
 Source:        https://ceph.com/download/%{name}-%{version}.tar.bz2
 Patch0:        ceph-init-fix.patch
 # https://github.com/ceph/ceph/pull/1051
-Patch1:        ceph-build-support-for-automake-1.12.patch
-Patch2:        ceph-fix-sbin-target.patch
+Patch1:        ceph-fix-sbin-target.patch
 
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel,
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm, libaio-devel,
@@ -21,7 +23,8 @@ BuildRequires: gperftools-devel
 BuildRequires: cryptopp-devel, libatomic_ops-static, gcc-c++
 BuildRequires: pkgconfig, libcurl-devel, keyutils-libs-devel
 BuildRequires: gtkmm24-devel, gtk2-devel, libuuid, libuuid-devel
-BuildRequires: leveldb-devel, snappy-devel
+BuildRequires: leveldb-devel, snappy-devel, libblkid-devel
+BuildRequires: xfsprogs-devel
 
 Requires(post): chkconfig, binutils, libedit
 Requires(preun): chkconfig
@@ -77,7 +80,6 @@ conjunction with any FastCGI capable web server.
 %setup -q
 %patch0 -p1 -b .init
 %patch1 -p1
-%patch2 -p1
 
 %build
 ./autogen.sh
@@ -149,6 +151,8 @@ fi
 %{_bindir}/monmaptool
 %{_bindir}/osdmaptool
 %{_bindir}/ceph-authtool
+%{_bindir}/ceph-brag
+%{_bindir}/ceph-crush-location
 %{_bindir}/ceph-syn
 %{_bindir}/ceph-run
 %{_bindir}/ceph-mon
@@ -216,17 +220,19 @@ fi
 %doc COPYING
 %{_libdir}/librados.so.*
 %{_libdir}/librbd.so.*
-%dir %{_libdir}/erasure-code
+%dir %{_libdir}/ceph/erasure-code
 # Warning to future maintainers: Note that the libec_ and libcls_ unversioned
 # shared objects are included here in the libs subpackage. These files are
 # plugins that Ceph loads with dlopen(). They belong here in -libs, not
 # -devel.
-%{_libdir}/erasure-code/libec_example.so*
-%{_libdir}/erasure-code/libec_fail_to_initialize.so*
-%{_libdir}/erasure-code/libec_fail_to_register.so*
-%{_libdir}/erasure-code/libec_hangs.so*
-%{_libdir}/erasure-code/libec_jerasure.so*
-%{_libdir}/erasure-code/libec_missing_entry_point.so*
+# N.B. in 0.80.1 the `make install` installs the erasure-code shared objects
+# in usr/lib*/ceph/erasure-code/...
+%{_libdir}/ceph/erasure-code/libec_example.so*
+%{_libdir}/ceph/erasure-code/libec_fail_to_initialize.so*
+%{_libdir}/ceph/erasure-code/libec_fail_to_register.so*
+%{_libdir}/ceph/erasure-code/libec_hangs.so*
+%{_libdir}/ceph/erasure-code/libec_jerasure.so*
+%{_libdir}/ceph/erasure-code/libec_missing_entry_point.so*
 %dir %{_libdir}/rados-classes
 # See warning note above about unversioned shared objects here. These belong
 # here in -libs (not -devel).
@@ -240,6 +246,7 @@ fi
 %{_libdir}/rados-classes/libcls_replica_log.so*
 %{_libdir}/rados-classes/libcls_statelog.so*
 %{_libdir}/rados-classes/libcls_version.so*
+%{_libdir}/rados-classes/libcls_user.so*
 
 %files libcephfs
 %doc COPYING
@@ -258,6 +265,7 @@ fi
 %dir %{_includedir}/cephfs
 %{_includedir}/cephfs/libcephfs.h
 %dir %{_includedir}/rados
+%{_includedir}/rados/memory.h
 %{_includedir}/rados/librados.h
 %{_includedir}/rados/librados.hpp
 %{_includedir}/rados/rados_types.h
@@ -282,6 +290,10 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Tue May 13 2014 Kaleb S. KEITHLEY <kkeithle[at]redhat.com> - 0.80.1-1
+- Update to latest stable upstream release, BZ 1095201
+- PIE, _hardened_build, BZ 955174
+
 * Thu Feb 06 2014 Ken Dreyer <ken.dreyer@inktank.com> - 0.72.2-2
 - Move plugins from -devel into -libs package (#891993). Thanks Michael
   Schwendt.
