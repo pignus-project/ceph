@@ -3,7 +3,7 @@
 
 Name:          ceph
 Version:       0.80.1
-Release:       3%{?dist}
+Release:       4%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -296,6 +296,9 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Fri May 23 2014 Petr Machata <pmachata@redhat.com> - 0.80.1-4
+- Rebuild for boost 1.55.0
+
 * Fri May 23 2014 David Tardon <dtardon@redhat.com> - 0.80.1-3
 - rebuild for boost 1.55.0
 
