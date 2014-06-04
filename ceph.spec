@@ -3,7 +3,7 @@
 
 Name:          ceph
 Version:       0.80.1
-Release:       4%{?dist}
+Release:       5%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -17,7 +17,7 @@ Patch1:        ceph-fix-sbin-target.patch
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel,
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm, libaio-devel,
 # google-perftools is not available on these:
-%ifnarch ppc ppc64 s390 s390x aarch64
+%ifnarch ppc s390 s390x
 BuildRequires: gperftools-devel
 %endif
 BuildRequires: cryptopp-devel, libatomic_ops-static, gcc-c++
@@ -100,7 +100,7 @@ EXTRA_LDFLAGS="-lpthread"
 %if ( 0%{?rhel} && 0%{?rhel} <= 6 )
 --without-libxfs \
 %endif
-%ifarch ppc ppc64 s390 s390x aarch64
+%ifarch ppc s390 s390x
 --without-tcmalloc \
 %endif
 --with-system-leveldb --without-hadoop --with-radosgw --with-gtk2 \
@@ -296,6 +296,9 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Wed Jun  4 2014 Peter Robinson <pbrobinson@fedoraproject.org> 0.80.1-5
+- gperftools now available on aarch64/ppc64
+
 * Fri May 23 2014 Petr Machata <pmachata@redhat.com> - 0.80.1-4
 - Rebuild for boost 1.55.0
 
