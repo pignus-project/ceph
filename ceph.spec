@@ -17,8 +17,14 @@ Patch1:        ceph-fix-sbin-target.patch
 BuildRequires: fuse-devel, libtool, libtool-ltdl-devel, boost-devel,
 BuildRequires: libedit-devel, fuse-devel, git, perl, gdbm, libaio-devel,
 # google-perftools is not available on these:
+%if ( ! (0%{?rhel} && 0%{?rhel} <= 6 ) )
 %ifnarch ppc s390 s390x
 BuildRequires: gperftools-devel
+%endif
+%else
+%ifnarch ppc ppc64 s390 s390x
+BuildRequires: gperftools-devel
+%endif
 %endif
 BuildRequires: cryptopp-devel, libatomic_ops-static, gcc-c++
 BuildRequires: pkgconfig, libcurl-devel, keyutils-libs-devel
@@ -295,6 +301,9 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Thu Jun 5 2014 Kaleb S. KEITHLEY <kkeithle[at]redhat.com>
+- el6 ppc64 does not have gperftools, merge from origin/el6
+
 * Thu Jun 5 2014 Kaleb S. KEITHLEY <kkeithle[at]redhat.com> - 0.81.0-1
 - ceph-0.81.0
 
