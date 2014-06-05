@@ -107,8 +107,14 @@ EXTRA_LDFLAGS="-lpthread"
 %if ( 0%{?rhel} && 0%{?rhel} <= 6 )
 --without-libxfs \
 %endif
+%if ( ! (0%{?rhel} && 0%{?rhel} <= 6 ) )
 %ifarch ppc s390 s390x
 --without-tcmalloc \
+%endif
+%else
+%ifarch ppc ppc64 s390 s390x
+--without-tcmalloc \
+%endif
 %endif
 --with-system-leveldb --without-hadoop --with-radosgw --with-gtk2 \
 CFLAGS="$RPM_OPT_FLAGS $EXTRA_CFLAGS" \
@@ -301,6 +307,9 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Thu Jun 5 2014 Kaleb S. KEITHLEY <kkeithle[at]redhat.com>
+- el6 ppc64 likewise for tcmalloc, merge from origin/el6
+
 * Thu Jun 5 2014 Kaleb S. KEITHLEY <kkeithle[at]redhat.com>
 - el6 ppc64 does not have gperftools, merge from origin/el6
 
