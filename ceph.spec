@@ -3,7 +3,7 @@
 
 Name:          ceph
 Version:       0.81.0
-Release:       1%{?dist}
+Release:       2%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -307,6 +307,9 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.81.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
 * Thu Jun 5 2014 Kaleb S. KEITHLEY <kkeithle[at]redhat.com>
 - el6 ppc64 likewise for tcmalloc, merge from origin/el6
 
