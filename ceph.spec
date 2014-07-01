@@ -247,8 +247,13 @@ License:	LGPL-2.0
 Requires:	java
 Requires:	libcephfs_jni1 = %{version}-%{release}
 BuildRequires:  java-devel
+%if (0%{?fedora} > 18 || 0%{?rhel} > 6)
+Requires:       junit
+BuildRequires:  junit
+%else
 Requires:       junit4
 BuildRequires:  junit4
+%endif
 %description -n cephfs-java
 This package contains the Java libraries for the Ceph File System.
 
