@@ -22,6 +22,9 @@ Source0:        https://ceph.com/download/%{name}-0.81.tar.bz2
 Patch0:         ceph-0.81.0-test-librbd-fsx.c.patch
 Patch1:         ceph-0.81.0-Makefile.in.patch
 Patch2:         ceph-0.81.0-configure.ac.patch
+%if ( 0%{?fedora} && 0%{?fedora} > 20 )
+ExcludeArch:	armv7hl
+%endif
 %if ( 0%{?rhel} && 0%{?rhel} < 7 )
 ExcludeArch:	ppc ppc64
 %endif
@@ -688,6 +691,9 @@ ln -sf %{_libdir}/librbd.so.1 /usr/lib64/qemu/librbd.so.1
 
 
 %changelog
+* Fri Jul 4 2014 Kaleb S. KEITHLEY <kkeithle[at]redhat.com>
+- temporary exclude f21/armv7hl. N.B. it builds fine on f20/armv7hl.
+
 * Fri Jul 4 2014 Kaleb S. KEITHLEY <kkeithle[at]redhat.com> - 0.81.0-4
 - upstream ceph.spec file
 
