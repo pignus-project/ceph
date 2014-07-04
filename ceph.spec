@@ -1,3 +1,6 @@
+
+%global _hardened_build 1
+
 %bcond_with ocf
 
 %if ! (0%{?fedora} > 12 || 0%{?rhel} > 5)
@@ -10,12 +13,18 @@
 #################################################################################
 Name:		ceph
 Version:	0.81.0
-Release:	3%{?dist}
+Release:	4%{?dist}
 Summary:	User space components of the Ceph file system
 License:	GPL-2.0
 Group:		System Environment/Base
 URL:		http://ceph.com/
 Source0:        https://ceph.com/download/%{name}-0.81.tar.bz2
+Patch0:         ceph-0.81.0-test-librbd-fsx.c.patch
+Patch1:         ceph-0.81.0-Makefile.in.patch
+Patch2:         ceph-0.81.0-configure.ac.patch
+%if ( 0%{?rhel} && 0%{?rhel} < 7 )
+ExcludeArch:	ppc ppc64
+%endif
 Requires:	librbd1 = %{version}-%{release}
 Requires:	librados2 = %{version}-%{release}
 Requires:	libcephfs1 = %{version}-%{release}
@@ -49,9 +58,11 @@ BuildRequires:  libuuid-devel
 BuildRequires:  libblkid-devel >= 2.17
 BuildRequires:  libudev-devel
 BuildRequires:  leveldb-devel > 1.2
+%if ( ! (0%{?rhel} && 0%{?rhel} < 7) )
 BuildRequires:  xfsprogs-devel
+%endif
 BuildRequires:  yasm
-%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?fedora}
+%if 0%{?rhel} || 0%{?centos} || 0%{?fedora}
 BuildRequires:  snappy-devel
 %endif
 
@@ -85,7 +96,16 @@ Requires:	gdisk
 Requires(post):	chkconfig
 Requires(preun):chkconfig
 Requires(preun):initscripts
-BuildRequires:  gperftools-devel
+# google-perftools is not available on these:
+%if ( ! (0%{?rhel} && 0%{?rhel} <= 6 ) )
+%ifnarch ppc s390 s390x
+BuildRequires: gperftools-devel
+%endif
+%else
+%ifnarch ppc ppc64 s390 s390x
+BuildRequires: gperftools-devel
+%endif
+%endif
 %endif
 
 %description
@@ -159,7 +179,7 @@ managers such as Pacemaker.
 Summary:	RADOS distributed object store client library
 Group:		System Environment/Libraries
 License:	LGPL-2.0
-%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?fedora}
+%if 0%{?rhel} || 0%{?centos} || 0%{?fedora}
 Obsoletes:	ceph-libs
 %endif
 %description -n librados2
@@ -172,7 +192,7 @@ store using a simple file-like interface.
 Summary:	RADOS block device client library
 Group:		System Environment/Libraries
 License:	LGPL-2.0
-%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?fedora}
+%if 0%{?rhel} || 0%{?centos} || 0%{?fedora}
 Obsoletes:	ceph-libs
 %endif
 %description -n librbd1
@@ -185,7 +205,7 @@ shared library allowing applications to manage these block devices.
 Summary:	Ceph distributed file system client library
 Group:		System Environment/Libraries
 License:	LGPL-2.0
-%if 0%{?rhel_version} || 0%{?centos_version} || 0%{?fedora}
+%if 0%{?rhel} || 0%{?centos} || 0%{?fedora}
 Obsoletes:	ceph-libs
 %endif
 %description -n libcephfs1
@@ -247,12 +267,12 @@ License:	LGPL-2.0
 Requires:	java
 Requires:	libcephfs_jni1 = %{version}-%{release}
 BuildRequires:  java-devel
-%if (0%{?fedora} > 18 || 0%{?rhel} > 6)
-Requires:       junit
-BuildRequires:  junit
-%else
+%if ( 0%{?rhel} && 0%{?rhel} < 7 )
 Requires:       junit4
 BuildRequires:  junit4
+%else
+Requires:       junit
+BuildRequires:  junit
 %endif
 %description -n cephfs-java
 This package contains the Java libraries for the Ceph File System.
@@ -266,6 +286,11 @@ This package contains the Java libraries for the Ceph File System.
 #################################################################################
 %prep
 %setup -q -n ceph-0.81
+%patch0 -p1
+%patch1 -p1
+%if ( 0%{?fedora} && 0%{?fedora} > 20 )
+%patch2 -p1
+%endif
 
 %build
 # Find jni.h
@@ -292,6 +317,18 @@ export RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed -e 's/i386/i486/'`
 		--enable-cephfs-java \
 		$MY_CONF_OPT \
 		%{?_with_ocf} \
+%if ( 0%{?rhel} && 0%{?rhel} < 7 )
+		--without-libxfs \
+%endif
+%if ( ! (0%{?rhel} && 0%{?rhel} <= 6 ) )
+%ifarch ppc s390 s390x
+		--without-tcmalloc \
+%endif
+%else
+%ifarch ppc ppc64 s390 s390x
+		--without-tcmalloc \
+%endif
+%endif
 		CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"
 
 # fix bug in specific version of libedit-devel
@@ -651,6 +688,9 @@ ln -sf %{_libdir}/librbd.so.1 /usr/lib64/qemu/librbd.so.1
 
 
 %changelog
+* Fri Jul 4 2014 Kaleb S. KEITHLEY <kkeithle[at]redhat.com> - 0.81.0-4
+- upstream ceph.spec file
+
 * Tue Jul 1 2014 Kaleb S. KEITHLEY <kkeithle[at]redhat.com> - 0.81.0-3
 - upstream ceph.spec file
 
