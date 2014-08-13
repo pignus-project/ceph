@@ -3,7 +3,7 @@
 
 Name:          ceph
 Version:       0.81.0
-Release:       5%{?dist}
+Release:       6%{?dist}
 Summary:       User space components of the Ceph file system
 License:       LGPLv2
 Group:         System Environment/Base
@@ -39,6 +39,12 @@ Requires(post): chkconfig, binutils, libedit
 Requires(preun): chkconfig
 Requires(preun): initscripts
 
+Obsoletes:     cephfs-java < 0.81.0-5
+Obsoletes:     ceph-test < 0.81.0-5
+Obsoletes:     libcephfs_jni1 < 0.81.0-5
+Obsoletes:     python-ceph < 0.81.0-5
+Obsoletes:     rest-bench < 0.81.0-5
+
 %description
 Ceph is a distributed network file system designed to provide excellent
 performance, reliability, and scalability.
@@ -46,12 +52,15 @@ performance, reliability, and scalability.
 %package libs
 Summary:       Ceph libraries
 Group:         System Environment/Libraries
+Obsoletes:     librados2 < 0.81.0-5
+Obsoletes:     librbd1 < 0.81.0-5
 %description libs
 Common libraries for Ceph distributed network file system
 
 %package libcephfs
 Summary:       Ceph libcephfs libraries
 Group:         System Environment/Libraries
+Obsoletes:     libcephfs1 < 0.81.0-5
 %description libcephfs
 libcephfs library for Ceph distributed network file system
 
@@ -60,6 +69,7 @@ Summary:       Ceph fuse-based client
 Group:         System Environment/Base
 Requires:      %{name}%{?_isa} = %{version}-%{release}
 BuildRequires: fuse-devel
+Obsoletes:     rbd-fuse < 0.81.0-5
 %description   fuse
 FUSE based client for Ceph distributed network file system
 
@@ -307,6 +317,9 @@ fi
 %{_sysconfdir}/bash_completion.d/radosgw-admin
 
 %changelog
+* Wed Aug 13 2014 Kalev Lember <kalevlember@gmail.com> - 0.81.0-6
+- Add obsoletes to keep the upgrade path working (#1118510)
+
 * Mon Jul 7 2014 Kaleb S. KEITHLEY <kkeithle[at]redhat.com> - 0.81.0-5
 - revert to old spec until after f21 branch
 
