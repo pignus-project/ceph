@@ -758,11 +758,12 @@ ln -sf %{_libdir}/librbd.so.1 /usr/lib64/qemu/librbd.so.1
 %files libs-compat
 
 %changelog
-* Thu Aug 22 2014 Boris Ranto <branto@redhat.com> - 1:0.80.5-8
+* Thu Aug 21 2014 Boris Ranto <branto@redhat.com> - 1:0.80.5-8
 - Revert the previous change
 - Fix bz 1118504, second attempt (yasm appears to be the package that caused this
+- Fix bogus dates
 
-* Wed Aug 21 2014 Boris Ranto <branto@redhat.com> - 1:0.80.5-7
+* Wed Aug 20 2014 Boris Ranto <branto@redhat.com> - 1:0.80.5-7
 - Several more merges from file to try to fix the selinux issue (1118504)
 
 * Sun Aug 17 2014 Kalev Lember <kalevlember@gmail.com> - 1:0.80.5-6
