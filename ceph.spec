@@ -10,7 +10,7 @@
 #################################################################################
 Name:		ceph
 Version:	0.80.6
-Release:	1%{?dist}
+Release:	2%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	GPLv2
@@ -869,9 +869,17 @@ ln -sf %{_libdir}/librbd.so.1 /usr/lib64/qemu/librbd.so.1
 %defattr(-,root,root,-)
 %{_javadir}/libcephfs.jar
 
+# We need to create these three for compatibility reasons
 %files libs-compat
 
+%files devel-compat
+
+%files -n python-ceph-compat
+
 %changelog
+* Fri Oct 10 2014 Boris Ranto <branto@redhat.com> - 1:0.80.6-2
+- Provide empty file list for python-ceph-compat and ceph-devel-compat
+
 * Fri Oct 10 2014 Boris Ranto <branto@redhat.com> - 1:0.80.6-1
 - Rebase to 0.80.6
 - Split ceph-devel and python-ceph packages
