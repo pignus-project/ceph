@@ -10,7 +10,7 @@
 #################################################################################
 Name:		ceph
 Version:	0.80.6
-Release:	2%{?dist}
+Release:	3%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	GPLv2
@@ -229,7 +229,7 @@ Summary:	RADOS block device headers
 Group:		Development/Libraries
 License:	LGPL-2.0
 Requires:	librbd1 = %{epoch}:%{version}-%{release}
-Requires:	librados-devel = %{epoch}:%{version}-%{release}
+Requires:	librados2-devel = %{epoch}:%{version}-%{release}
 Obsoletes:	ceph-devel
 %description -n librbd1-devel
 This package contains libraries and headers needed to develop programs
@@ -265,7 +265,7 @@ Summary:	Ceph distributed file system headers
 Group:		Development/Libraries
 License:	LGPL-2.0
 Requires:	libcephfs1 = %{epoch}:%{version}-%{release}
-Requires:	librados-devel = %{epoch}:%{version}-%{release}
+Requires:	librados2-devel = %{epoch}:%{version}-%{release}
 Obsoletes:	ceph-devel
 %description -n libcephfs1-devel
 This package contains libraries and headers needed to develop programs
@@ -877,6 +877,9 @@ ln -sf %{_libdir}/librbd.so.1 /usr/lib64/qemu/librbd.so.1
 %files -n python-ceph-compat
 
 %changelog
+* Sat Oct 11 2014 Boris Ranto <branto@redhat.com> - 1:0.80.6-3
+- Fix a typo in librados-devel vs librados2-devel dependency
+
 * Fri Oct 10 2014 Boris Ranto <branto@redhat.com> - 1:0.80.6-2
 - Provide empty file list for python-ceph-compat and ceph-devel-compat
 
