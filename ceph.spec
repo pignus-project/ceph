@@ -9,7 +9,7 @@
 # common
 #################################################################################
 Name:		ceph
-Version:	0.80.7
+Version:	0.87
 Release:	1%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
@@ -18,7 +18,6 @@ Group:		System Environment/Base
 URL:		http://ceph.com/
 Source0:	http://ceph.com/download/%{name}-%{version}.tar.bz2
 Patch0:		ceph-google-gperftools.patch
-Patch1:		ceph-no-format-security.patch
 Requires:	librbd1 = %{epoch}:%{version}-%{release}
 Requires:	librados2 = %{epoch}:%{version}-%{release}
 Requires:	libcephfs1 = %{epoch}:%{version}-%{release}
@@ -182,7 +181,7 @@ Summary:	RADOS distributed object store client library
 Group:		System Environment/Libraries
 License:	LGPL-2.0
 %if 0%{?rhel} || 0%{?centos} || 0%{?fedora}
-Obsoletes:	ceph-libs < 1:0.80.5
+Obsoletes:	ceph-libs < %{epoch}:%{version}-%{release}
 %endif
 %description -n librados2
 RADOS is a reliable, autonomic distributed object storage cluster
@@ -210,13 +209,33 @@ Obsoletes:	python-ceph
 This package contains Python libraries for interacting with Cephs RADOS
 object store.
 
+%package -n libradosstriper1
+Summary:        RADOS striping interface
+Group:          System Environment/Libraries
+License:        LGPL-2.0
+Requires:       librados2 = %{epoch}:%{version}-%{release}
+%description -n libradosstriper1
+Striping interface built on top of the rados library, allowing
+to stripe bigger objects onto several standard rados objects using
+an interface very similar to the rados one.
+
+%package -n libradosstriper1-devel
+Summary:        RADOS striping interface headers
+Group:          Development/Libraries
+License:        LGPL-2.0
+Requires:       libradosstriper1 = %{epoch}:%{version}-%{release}
+Requires:       librados2-devel = %{epoch}:%{version}-%{release}
+%description -n libradosstriper1-devel
+This package contains libraries and headers needed to develop programs
+that use RADOS striping interface.
+
 %package -n librbd1
 Summary:	RADOS block device client library
 Group:		System Environment/Libraries
 License:	LGPL-2.0
 Requires:	librados2 = %{epoch}:%{version}-%{release}
 %if 0%{?rhel} || 0%{?centos} || 0%{?fedora}
-Obsoletes:	ceph-libs < 1:0.80.5
+Obsoletes:	ceph-libs < %{epoch}:%{version}-%{release}
 %endif
 %description -n librbd1
 RBD is a block device striped across multiple distributed objects in
@@ -251,8 +270,8 @@ Summary:	Ceph distributed file system client library
 Group:		System Environment/Libraries
 License:	LGPL-2.0
 %if 0%{?rhel} || 0%{?centos} || 0%{?fedora}
-Obsoletes:	ceph-libs < 1:0.80.5
-Obsoletes:	ceph-libcephfs < 1:0.80.5
+Obsoletes:	ceph-libs < %{epoch}:%{version}-%{release}
+Obsoletes:	ceph-libcephfs < %{epoch}:%{version}-%{release}
 %endif
 %description -n libcephfs1
 Ceph is a distributed network file system designed to provide excellent
@@ -337,6 +356,7 @@ Group:		System Environment/Libraries
 License:	LGPL-2.0
 Obsoletes:	ceph-libs
 Requires:	librados2 = %{epoch}:%{version}-%{release}
+Requires:	libradosstriper1 = %{epoch}:%{version}-%{release}
 Requires:	librbd1 = %{epoch}:%{version}-%{release}
 Requires:	libcephfs1 = %{epoch}:%{version}-%{release}
 Provides:	ceph-libs
@@ -345,7 +365,7 @@ This is a meta package, that pulls in librados2, librbd1 and libcephfs1. It
 is included for backwards compatibility with distributions that depend on the
 former ceph-libs package, which is now split up into these three subpackages.
 Packages still depending on ceph-libs should be fixed to depend on librados2,
-librbd1 or libcephfs1 instead.
+librbd1, libcephfs1 or libradosstriper1 instead.
 
 %package devel-compat
 Summary:	Compatibility package for Ceph headers
@@ -354,6 +374,7 @@ License:	LGPL-2.0
 Obsoletes:	ceph-devel
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 Requires:	librados2-devel = %{epoch}:%{version}-%{release}
+Requires:	libradosstriper1-devel = %{epoch}:%{version}-%{release}
 Requires:	librbd1-devel = %{epoch}:%{version}-%{release}
 Requires:	libcephfs1-devel = %{epoch}:%{version}-%{release}
 Requires:	libcephfs_jni1-devel = %{epoch}:%{version}-%{release}
@@ -361,8 +382,8 @@ Provides:	ceph-devel
 %description devel-compat
 This is a compatibility package to accommodate ceph-devel split into
 librados2-devel, librbd1-devel and libcephfs1-devel. Packages still depending
-on ceph-devel should be fixed to depend on librados2-devel, librbd1-devel
-or libcephfs1-devel instead.
+on ceph-devel should be fixed to depend on librados2-devel, librbd1-devel,
+libcephfs1-devel or libradosstriper1-devel instead.
 
 %package -n python-ceph-compat
 Summary:	Compatibility package for Cephs python libraries
@@ -389,7 +410,6 @@ python-cephfs instead.
 %prep
 %setup -q
 %patch0 -p1
-%patch1 -p1
 
 %build
 # Find jni.h
@@ -454,6 +474,8 @@ make %{_smp_mflags}
 make DESTDIR=$RPM_BUILD_ROOT install
 find $RPM_BUILD_ROOT -type f -name "*.la" -exec rm -f {} ';'
 find $RPM_BUILD_ROOT -type f -name "*.a" -exec rm -f {} ';'
+# do not package man page for binary that is not built
+rm -f %{_mandir}/man8/rbd-replay-prep.8*
 install -D src/init-ceph $RPM_BUILD_ROOT%{_initrddir}/ceph
 install -D src/init-radosgw.sysv $RPM_BUILD_ROOT%{_initrddir}/ceph-radosgw
 install -D src/init-rbdmap $RPM_BUILD_ROOT%{_initrddir}/rbdmap
@@ -483,7 +505,6 @@ install -m 0644 -D udev/95-ceph-osd.rules $RPM_BUILD_ROOT/lib/udev/rules.d/95-ce
 
 %if 0%{?rhel} >= 7 || 0%{?fedora}
 mv $RPM_BUILD_ROOT/lib/udev/rules.d/95-ceph-osd.rules $RPM_BUILD_ROOT/usr/lib/udev/rules.d/95-ceph-osd.rules
-mv $RPM_BUILD_ROOT/sbin/mkcephfs $RPM_BUILD_ROOT/usr/sbin/mkcephfs
 mv $RPM_BUILD_ROOT/sbin/mount.ceph $RPM_BUILD_ROOT/usr/sbin/mount.ceph
 mv $RPM_BUILD_ROOT/sbin/mount.fuse.ceph $RPM_BUILD_ROOT/usr/sbin/mount.fuse.ceph
 %endif
@@ -553,6 +574,7 @@ fi
 %{_bindir}/ceph-rbdnamer
 %{_bindir}/librados-config
 %{_bindir}/ceph-client-debug
+%{_bindir}/cephfs-journal-tool
 %{_bindir}/ceph-debugpack
 %{_bindir}/ceph-coverage
 %{_bindir}/ceph_mon_store_converter
@@ -564,14 +586,13 @@ fi
 %{_sbindir}/ceph-create-keys
 %{_sbindir}/rcceph
 %if 0%{?rhel} >= 7 || 0%{?fedora}
-%{_sbindir}/mkcephfs
 %{_sbindir}/mount.ceph
 %else
-/sbin/mkcephfs
 /sbin/mount.ceph
 %endif
 %dir %{_libdir}/ceph
 %{_libdir}/ceph/ceph_common.sh
+%{_libexecdir}/ceph/ceph-osd-prestart.sh
 %dir %{_libdir}/rados-classes
 %{_libdir}/rados-classes/libcls_rbd.so*
 %{_libdir}/rados-classes/libcls_hello.so*
@@ -585,13 +606,7 @@ fi
 %{_libdir}/rados-classes/libcls_user.so*
 %{_libdir}/rados-classes/libcls_version.so*
 %dir %{_libdir}/ceph/erasure-code
-%{_libdir}/ceph/erasure-code/libec_example.so*
-%{_libdir}/ceph/erasure-code/libec_fail_to_initialize.so*
-%{_libdir}/ceph/erasure-code/libec_fail_to_register.so*
-%{_libdir}/ceph/erasure-code/libec_hangs.so*
-%{_libdir}/ceph/erasure-code/libec_jerasure*.so*
-%{_libdir}/ceph/erasure-code/libec_test_jerasure*.so*
-%{_libdir}/ceph/erasure-code/libec_missing_entry_point.so*
+%{_libdir}/ceph/erasure-code/libec_*.so*
 %if 0%{?rhel} >= 7 || 0%{?fedora}
 /usr/lib/udev/rules.d/60-ceph-partuuid-workaround.rules
 /usr/lib/udev/rules.d/95-ceph-osd.rules
@@ -605,7 +620,6 @@ fi
 %{_mandir}/man8/ceph-mon.8*
 %{_mandir}/man8/ceph-mds.8*
 %{_mandir}/man8/ceph-osd.8*
-%{_mandir}/man8/mkcephfs.8*
 %{_mandir}/man8/ceph-run.8*
 %{_mandir}/man8/ceph-rest-api.8*
 %{_mandir}/man8/crushtool.8*
@@ -759,6 +773,25 @@ fi
 %{python_sitelib}/rados.py*
 
 #################################################################################
+%files -n libradosstriper1
+%defattr(-,root,root,-)
+%{_libdir}/libradosstriper.so.*
+
+%post -n libradosstriper1
+/sbin/ldconfig
+
+%postun -n libradosstriper1
+/sbin/ldconfig
+
+#################################################################################
+%files -n libradosstriper1-devel
+%defattr(-,root,root,-)
+%dir %{_includedir}/radosstriper
+%{_includedir}/radosstriper/libradosstriper.h
+%{_includedir}/radosstriper/libradosstriper.hpp
+%{_libdir}/libradosstriper.so
+
+#################################################################################
 %files -n librbd1
 %defattr(-,root,root,-)
 %{_libdir}/librbd.so.*
@@ -847,8 +880,7 @@ ln -sf %{_libdir}/librbd.so.1 /usr/lib64/qemu/librbd.so.1
 %{_bindir}/ceph_smalliobenchdumb
 %{_bindir}/ceph_smalliobenchfs
 %{_bindir}/ceph_smalliobenchrbd
-%{_bindir}/ceph_filestore_dump
-%{_bindir}/ceph_filestore_tool
+%{_bindir}/ceph_objectstore_tool
 %{_bindir}/ceph_streamtest
 %{_bindir}/ceph_test_*
 %{_bindir}/ceph_tpbench
@@ -856,6 +888,12 @@ ln -sf %{_libdir}/librbd.so.1 /usr/lib64/qemu/librbd.so.1
 %{_bindir}/ceph-monstore-tool
 %{_bindir}/ceph-osdomap-tool
 %{_bindir}/ceph-kvstore-tool
+%{_mandir}/man8/rbd-replay.8*
+%{_bindir}/rbd-replay
+%if (0%{?fedora} == 20 || 0%{?rhel} == 6)
+%{_mandir}/man8/rbd-replay-prep.8*
+%{_bindir}/rbd-replay-prep
+%endif
 
 %files -n libcephfs_jni1
 %defattr(-,root,root,-)
@@ -877,6 +915,9 @@ ln -sf %{_libdir}/librbd.so.1 /usr/lib64/qemu/librbd.so.1
 %files -n python-ceph-compat
 
 %changelog
+* Mon Nov 3 2014 Boris Ranto <branto@redhat.com> - 1:0.87-1
+- Rebase to latest major version (firefly -> giant)
+
 * Thu Oct 16 2014 Boris Ranto <branto@redhat.com - 1:0.80.7-1
 - Rebase to latest upstream version
 
