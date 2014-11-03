@@ -475,7 +475,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 find $RPM_BUILD_ROOT -type f -name "*.la" -exec rm -f {} ';'
 find $RPM_BUILD_ROOT -type f -name "*.a" -exec rm -f {} ';'
 # do not package man page for binary that is not built
-rm -f %{_mandir}/man8/rbd-replay-prep.8*
+rm -f $RPM_BUILD_ROOT%{_mandir}/man8/rbd-replay-prep.8*
 install -D src/init-ceph $RPM_BUILD_ROOT%{_initrddir}/ceph
 install -D src/init-radosgw.sysv $RPM_BUILD_ROOT%{_initrddir}/ceph-radosgw
 install -D src/init-rbdmap $RPM_BUILD_ROOT%{_initrddir}/rbdmap
