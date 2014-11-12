@@ -205,26 +205,29 @@ Group:		System Environment/Libraries
 License:	LGPL-2.0
 Requires:	librados2 = %{epoch}:%{version}-%{release}
 Obsoletes:	python-ceph
+%if 0%{defined suse_version}
+%py_requires
+%endif
 %description -n python-rados
 This package contains Python libraries for interacting with Cephs RADOS
 object store.
 
 %package -n libradosstriper1
-Summary:        RADOS striping interface
-Group:          System Environment/Libraries
-License:        LGPL-2.0
-Requires:       librados2 = %{epoch}:%{version}-%{release}
+Summary:	RADOS striping interface
+Group:		System Environment/Libraries
+License:	LGPL-2.0
+Requires:	librados2 = %{epoch}:%{version}-%{release}
 %description -n libradosstriper1
 Striping interface built on top of the rados library, allowing
 to stripe bigger objects onto several standard rados objects using
 an interface very similar to the rados one.
 
 %package -n libradosstriper1-devel
-Summary:        RADOS striping interface headers
-Group:          Development/Libraries
-License:        LGPL-2.0
-Requires:       libradosstriper1 = %{epoch}:%{version}-%{release}
-Requires:       librados2-devel = %{epoch}:%{version}-%{release}
+Summary:	RADOS striping interface headers
+Group:		Development/Libraries
+License:	LGPL-2.0
+Requires:	libradosstriper1 = %{epoch}:%{version}-%{release}
+Requires:	librados2-devel = %{epoch}:%{version}-%{release}
 %description -n libradosstriper1-devel
 This package contains libraries and headers needed to develop programs
 that use RADOS striping interface.
@@ -907,7 +910,8 @@ ln -sf %{_libdir}/librbd.so.1 /usr/lib64/qemu/librbd.so.1
 %defattr(-,root,root,-)
 %{_javadir}/libcephfs.jar
 
-# We need to create these three for compatibility reasons
+# We need an empty %files list for ceph-libs-compat, ceph-devel-compat and
+# python-ceph-compat to tell rpmbuild to actually build these meta packages.
 %files libs-compat
 
 %files devel-compat
