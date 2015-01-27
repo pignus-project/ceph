@@ -10,7 +10,7 @@
 #################################################################################
 Name:		ceph
 Version:	0.87
-Release:	1%{?dist}
+Release:	2%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	GPLv2
@@ -919,6 +919,9 @@ ln -sf %{_libdir}/librbd.so.1 /usr/lib64/qemu/librbd.so.1
 %files -n python-ceph-compat
 
 %changelog
+* Tue Jan 27 2015 Petr Machata <pmachata@redhat.com> - 1:0.87-2
+- Rebuild for boost 1.57.0
+
 * Mon Nov 3 2014 Boris Ranto <branto@redhat.com> - 1:0.87-1
 - Rebase to latest major version (firefly -> giant)
 
