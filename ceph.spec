@@ -18,6 +18,7 @@ Group:		System Environment/Base
 URL:		http://ceph.com/
 Source0:	http://ceph.com/download/%{name}-%{version}.tar.bz2
 Patch0:		ceph-google-gperftools.patch
+Patch1:         ceph-0.87-boost157.patch
 Requires:	librbd1 = %{epoch}:%{version}-%{release}
 Requires:	librados2 = %{epoch}:%{version}-%{release}
 Requires:	libcephfs1 = %{epoch}:%{version}-%{release}
@@ -413,6 +414,7 @@ python-cephfs instead.
 %prep
 %setup -q
 %patch0 -p1
+%patch1 -p1
 
 %build
 # Find jni.h
@@ -919,8 +921,11 @@ ln -sf %{_libdir}/librbd.so.1 /usr/lib64/qemu/librbd.so.1
 %files -n python-ceph-compat
 
 %changelog
-* Tue Jan 27 2015 Petr Machata <pmachata@redhat.com> - 1:0.87-2
+* Thu Jan 29 2015 Petr Machata <pmachata@redhat.com> - 1:0.87-2
 - Rebuild for boost 1.57.0
+- Include <boost/optional/optional_io.hpp> instead of
+  <boost/optional.hpp>.  Keep the old dumping behavior in
+  osd/ECBackend.cc (ceph-0.87-boost157.patch)
 
 * Mon Nov 3 2014 Boris Ranto <branto@redhat.com> - 1:0.87-1
 - Rebase to latest major version (firefly -> giant)
