@@ -18,6 +18,7 @@ Group:		System Environment/Base
 URL:		http://ceph.com/
 Source0:	http://ceph.com/download/%{name}-%{version}.tar.bz2
 Patch0:		ceph-google-gperftools.patch
+# Patch1 sent upstream at http://tracker.ceph.com/issues/10688
 Patch1:         ceph-0.87-boost157.patch
 Requires:	librbd1 = %{epoch}:%{version}-%{release}
 Requires:	librados2 = %{epoch}:%{version}-%{release}
