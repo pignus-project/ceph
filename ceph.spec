@@ -67,6 +67,7 @@ Source0:	http://ceph.com/download/%{name}-%{version}.tar.bz2
 %if 0%{?fedora} || 0%{?rhel}
 Patch0:		init-ceph.in-fedora.patch
 %endif
+Patch1:		0001-Disable-erasure_codelib-neon-build.patch
 #################################################################################
 # dependencies that apply across all distro families
 #################################################################################
@@ -538,6 +539,7 @@ python-cephfs instead.
 %if 0%{?fedora} || 0%{?rhel}
 %patch0 -p1 -b .init
 %endif
+%patch1 -p1 -b .neon
 
 %build
 %if 0%{with cephfs_java}
