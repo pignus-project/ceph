@@ -55,7 +55,7 @@ restorecon -R /var/log/ceph > /dev/null 2>&1;
 #################################################################################
 Name:		ceph
 Version:	9.2.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	LGPL-2.1 and CC-BY-SA-1.0 and GPL-2.0 and BSL-1.0 and GPL-2.0-with-autoconf-exception and BSD-3-Clause and MIT
@@ -169,7 +169,9 @@ Requires:	gdisk
 Requires(post):	chkconfig
 Requires(preun):	chkconfig
 Requires(preun):	initscripts
+%ifnarch s390 s390x
 BuildRequires:	gperftools-devel
+%endif
 Requires:	python-flask
 %endif
 # boost
@@ -555,6 +557,11 @@ done
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS --param ggc-min-expand=20 --param ggc-min-heapsize=32768"
 %endif
 export RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed -e 's/i386/i486/'`
+%ifarch s390
+# Decrease debuginfo verbosity to reduce memory consumption even more
+export RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed -e 's/-g /-g1 /'`
+%endif
+
 
 %{configure}	CPPFLAGS="$java_inc" \
 		--prefix=/usr \
@@ -589,7 +596,11 @@ export RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed -e 's/i386/i486/'`
 		--with-radosgw \
 		$CEPH_EXTRA_CONFIGURE_ARGS \
 		%{?_with_ocf} \
+%ifnarch s390 s390x
 		%{?_with_tcmalloc} \
+%else
+		--without-tcmalloc \
+%endif
 		CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"
 
 
@@ -1317,6 +1328,9 @@ exit 0
 # actually build this meta package.
 
 %changelog
+* Mon Dec 14 2015 Dan Horák <dan[at]danny.cz> - 1:9.2.0-2
+- fix build on s390(x) - gperftools/tcmalloc not available there
+
 * Tue Nov 10 2015 Boris Ranto <branto@redhat.com> - 1:9.2.0-1
 - Rebase to latest stable upstream version (9.2.0 - infernalis)
 - Use upstream spec file
