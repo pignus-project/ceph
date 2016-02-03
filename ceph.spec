@@ -55,7 +55,7 @@ restorecon -R /var/log/ceph > /dev/null 2>&1;
 #################################################################################
 Name:		ceph
 Version:	9.2.0
-Release:	3%{?dist}
+Release:	4%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	LGPL-2.1 and CC-BY-SA-1.0 and GPL-2.0 and BSL-1.0 and GPL-2.0-with-autoconf-exception and BSD-3-Clause and MIT
@@ -1328,6 +1328,9 @@ exit 0
 # actually build this meta package.
 
 %changelog
+* Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 1:9.2.0-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
 * Thu Jan 14 2016 Jonathan Wakely <jwakely@redhat.com> - 1:9.2.0-3
 - Rebuilt for Boost 1.60
 
