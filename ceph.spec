@@ -6,7 +6,7 @@
 %bcond_without libs_compat
 %bcond_with lowmem_builder
 %if 0%{?fedora} || 0%{?rhel}
-%bcond_without selinux
+%bcond_with selinux
 %endif
 %if 0%{?suse_version}
 %bcond_with selinux
@@ -55,7 +55,7 @@ restorecon -R /var/log/ceph > /dev/null 2>&1;
 #################################################################################
 Name:		ceph
 Version:	9.2.0
-Release:	4%{?dist}
+Release:	5%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	LGPL-2.1 and CC-BY-SA-1.0 and GPL-2.0 and BSL-1.0 and GPL-2.0-with-autoconf-exception and BSD-3-Clause and MIT
@@ -68,6 +68,8 @@ Source0:	http://ceph.com/download/%{name}-%{version}.tar.bz2
 Patch0:		init-ceph.in-fedora.patch
 %endif
 Patch1:		0001-Disable-erasure_codelib-neon-build.patch
+# Upstream commit 1c2831a2, fixes RHBZ#1319483
+Patch2:         0001-common-Cycles-Do-not-initialize-Cycles-globally.patch
 #################################################################################
 # dependencies that apply across all distro families
 #################################################################################
@@ -542,6 +544,7 @@ python-cephfs instead.
 %patch0 -p1 -b .init
 %endif
 %patch1 -p1 -b .neon
+%patch2 -p1 -b .cycles
 
 %build
 %if 0%{with cephfs_java}
@@ -1328,6 +1331,10 @@ exit 0
 # actually build this meta package.
 
 %changelog
+* Mon Apr 11 2016 Richard W.M. Jones <rjones@redhat.com> - 1:9.2.0-5
+- Fix large startup times of processes linking to -lrbd.
+  Backport upstream commit 1c2831a2, fixes RHBZ#1319483.
+
 * Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 1:9.2.0-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
