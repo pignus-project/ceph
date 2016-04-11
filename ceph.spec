@@ -565,6 +565,11 @@ export RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed -e 's/i386/i486/'`
 export RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed -e 's/-g /-g1 /'`
 %endif
 
+# This is ONLY required to workaround XFS brokenness.  When the
+# following bug is fixed, you can remove this.
+# https://bugzilla.redhat.com/show_bug.cgi?id=1305512
+export RPM_OPT_FLAGS="-D_GNU_SOURCE $RPM_OPT_FLAGS"
+
 
 %{configure}	CPPFLAGS="$java_inc" \
 		--prefix=/usr \
@@ -1334,6 +1339,7 @@ exit 0
 * Mon Apr 11 2016 Richard W.M. Jones <rjones@redhat.com> - 1:9.2.0-5
 - Fix large startup times of processes linking to -lrbd.
   Backport upstream commit 1c2831a2, fixes RHBZ#1319483.
+- Add workaround for XFS header brokenness.
 
 * Wed Feb 03 2016 Fedora Release Engineering <releng@fedoraproject.org> - 1:9.2.0-4
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
