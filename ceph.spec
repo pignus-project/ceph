@@ -567,7 +567,7 @@ export RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed -e 's/-g /-g1 /'`
 
 # This is ONLY required to workaround XFS brokenness.  When the
 # following bug is fixed, you can remove this.
-# https://bugzilla.redhat.com/show_bug.cgi?id=1305512
+# https://bugzilla.redhat.com/show_bug.cgi?id=1319804
 export RPM_OPT_FLAGS="-D_GNU_SOURCE $RPM_OPT_FLAGS"
 
 
