@@ -75,7 +75,7 @@ restorecon -R /var/log/radosgw > /dev/null 2>&1;
 #################################################################################
 Name:		ceph
 Version:	10.2.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	LGPL-2.1 and CC-BY-SA-1.0 and GPL-2.0 and BSL-1.0 and GPL-2.0-with-autoconf-exception and BSD-3-Clause and MIT
@@ -85,6 +85,7 @@ Group:         System/Filesystems
 URL:		http://ceph.com/
 Source0:	http://ceph.com/download/%{name}-%{version}.tar.gz
 Patch1: 0001-Disable-erasure_codelib-neon-build.patch
+Patch2: 0002-Do-not-use-momit-leaf-frame-pointer-flag.patch
 #################################################################################
 # dependencies that apply across all distro families
 #################################################################################
@@ -659,6 +660,7 @@ python-cephfs instead.
 %prep
 %setup -q
 %patch1 -p1
+%patch2 -p1
 
 %build
 %if 0%{with cephfs_java}
@@ -1547,6 +1549,9 @@ exit 0
 
 
 %changelog
+* Fri Apr 22 2016 Boris Ranto <branto@redhat.com> - 10.2.0-2
+- Do not use -momit-leaf-frame-pointer flag
+
 * Fri Apr 22 2016 Boris Ranto <branto@redhat.com> - -
 - Rebase to version 10.2.0
 - Disable erasure_codelib neon build
