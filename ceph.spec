@@ -132,7 +132,9 @@ BuildRequires:	python-requests
 BuildRequires:	python-virtualenv
 BuildRequires:	snappy-devel
 BuildRequires:	util-linux
+%ifnarch s390
 BuildRequires:	valgrind-devel
+%endif
 BuildRequires:	xfsprogs
 BuildRequires:	xfsprogs-devel
 BuildRequires:	xmlstarlet
