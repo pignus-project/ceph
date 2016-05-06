@@ -17,7 +17,12 @@
 %bcond_with ocf
 %bcond_without cephfs_java
 %bcond_with tests
+%ifnarch s390 s390x
 %bcond_without tcmalloc
+%else
+# no gperftools/tcmalloc on s390(x)
+%bcond_with tcmalloc
+%endif
 %bcond_without libs_compat
 %bcond_with lowmem_builder
 %if 0%{?fedora} || 0%{?rhel}
@@ -75,7 +80,7 @@ restorecon -R /var/log/radosgw > /dev/null 2>&1;
 #################################################################################
 Name:		ceph
 Version:	10.2.0
-Release:	2%{?dist}
+Release:	3%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	LGPL-2.1 and CC-BY-SA-1.0 and GPL-2.0 and BSL-1.0 and GPL-2.0-with-autoconf-exception and BSD-3-Clause and MIT
@@ -169,7 +174,9 @@ BuildRequires:	libatomic_ops-devel
 Requires(post):	chkconfig
 Requires(preun):	chkconfig
 Requires(preun):	initscripts
+%if 0%{with tcmalloc}
 BuildRequires:	gperftools-devel
+%endif
 BuildRequires:  openldap-devel
 BuildRequires:  openssl-devel
 BuildRequires:  redhat-lsb-core
@@ -676,6 +683,10 @@ done
 RPM_OPT_FLAGS="$RPM_OPT_FLAGS --param ggc-min-expand=20 --param ggc-min-heapsize=32768"
 %endif
 export RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed -e 's/i386/i486/'`
+%ifarch s390
+# Decrease debuginfo verbosity to reduce memory consumption even more
+export RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed -e 's/-g /-g1 /'`
+%endif
 
 %{configure}	CPPFLAGS="$java_inc" \
 		--prefix=/usr \
@@ -708,7 +719,9 @@ export RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed -e 's/i386/i486/'`
 %endif
 		$CEPH_EXTRA_CONFIGURE_ARGS \
 		%{?_with_ocf} \
-		%{?_with_tcmalloc} \
+%if %{without tcmalloc}
+		--without-tcmalloc \
+%endif
 		CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"
 
 %if %{with lowmem_builder}
@@ -1549,6 +1562,9 @@ exit 0
 
 
 %changelog
+* Fri May 06 2016 Dan Horák <dan[at]danny.cz> - 10.2.0-3
+- fix build on s390(x) - gperftools/tcmalloc not available there
+
 * Fri Apr 22 2016 Boris Ranto <branto@redhat.com> - 10.2.0-2
 - Do not use -momit-leaf-frame-pointer flag
 
