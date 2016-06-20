@@ -1,4 +1,4 @@
-From da169786d04025c98a7727040e0f5dd5c02245c2 Mon Sep 17 00:00:00 2001
+From 181986411c672e2ccce326e3c28b3ad450b6f99d Mon Sep 17 00:00:00 2001
 From: Boris Ranto <branto@redhat.com>
 Date: Fri, 22 Apr 2016 15:30:22 +0200
 Subject: [PATCH] Do not use -momit-leaf-frame-pointer flag
@@ -26,5 +26,5 @@ index c64ea36..b3758a5 100644
  
  # if we're compiling for release, compile without debug code (-DNDEBUG) and
 -- 
-2.5.5
+2.7.4
 

@@ -1,4 +1,4 @@
-From 854a65a1dc079101b827bed60ce5ea2185943e2c Mon Sep 17 00:00:00 2001
+From 1aa42ff6c1d1a216d36a742835d9037601360f76 Mon Sep 17 00:00:00 2001
 From: Boris Ranto <branto@redhat.com>
 Date: Wed, 11 Nov 2015 17:08:06 +0100
 Subject: [PATCH] Disable erasure_codelib neon build
@@ -43,5 +43,5 @@ index 6b658d5..93051f4 100644
  libec_shec_sse3_la_SOURCES = ${shec_sources}
  libec_shec_sse3_la_CFLAGS = ${AM_CFLAGS}  \
 -- 
-2.5.5
+2.7.4
 
