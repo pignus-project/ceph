@@ -1,0 +1,57 @@
+From ff336b26b9d694a59141064ad76e652ecb090882 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Dan=20Hor=C3=A1k?= <dan@danny.cz>
+Date: Fri, 6 May 2016 13:29:03 +0200
+Subject: [PATCH] fix tcmalloc handling in spec file
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- there is no gperftools/tcmalloc on s390(x) yet
+- explicitly disable tcmalloc when built without
+
+Signed-off-by: Dan Horák <dan@danny.cz>
+---
+ ceph.spec.in | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/ceph.spec.in b/ceph.spec.in
+index 3cf6307..c122fa7 100644
+--- a/ceph.spec.in
++++ b/ceph.spec.in
+@@ -18,7 +18,12 @@
+ %bcond_without cephfs_java
+ %bcond_with tests
+ %bcond_with xio
++%ifnarch s390 s390x
+ %bcond_without tcmalloc
++%else
++# no gperftools/tcmalloc on s390(x)
++%bcond_with tcmalloc
++%endif
+ %bcond_without libs_compat
+ %bcond_with lowmem_builder
+ %if 0%{?fedora} || 0%{?rhel}
+@@ -137,7 +142,9 @@ BuildRequires:	btrfs-progs
+ BuildRequires:	nss-devel
+ BuildRequires:	keyutils-libs-devel
+ BuildRequires:	libatomic_ops-devel
++%if 0%{with tcmalloc}
+ BuildRequires:	gperftools-devel
++%endif
+ BuildRequires:  openldap-devel
+ BuildRequires:  openssl-devel
+ BuildRequires:  redhat-lsb-core
+@@ -660,7 +667,9 @@ export RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed -e 's/i386/i486/'`
+ %endif
+ 		$CEPH_EXTRA_CONFIGURE_ARGS \
+ 		%{?_with_ocf} \
+-		%{?_with_tcmalloc} \
++%if %{without tcmalloc}
++		--without-tcmalloc \
++%endif
+ 		CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"
+ 
+ %if %{with lowmem_builder}
+-- 
+2.7.4
+

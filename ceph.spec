@@ -55,7 +55,7 @@
 #################################################################################
 Name:		ceph
 Version:	10.2.2
-Release:	1%{?dist}
+Release:	2%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	LGPL-2.1 and CC-BY-SA-1.0 and GPL-2.0 and BSL-1.0 and GPL-2.0-with-autoconf-exception and BSD-3-Clause and MIT
@@ -66,6 +66,7 @@ URL:		http://ceph.com/
 Source0:	http://ceph.com/download/%{name}-%{version}.tar.gz
 Patch1: 0001-Disable-erasure_codelib-neon-build.patch
 Patch2: 0002-Do-not-use-momit-leaf-frame-pointer-flag.patch
+Patch3: 0003-fix-tcmalloc-handling-in-spec-file.patch
 #################################################################################
 # dependencies that apply across all distro families
 #################################################################################
@@ -146,7 +147,9 @@ BuildRequires:	btrfs-progs
 BuildRequires:	nss-devel
 BuildRequires:	keyutils-libs-devel
 BuildRequires:	libatomic_ops-devel
+%if 0%{with tcmalloc}
 BuildRequires:	gperftools-devel
+%endif
 BuildRequires:  openldap-devel
 BuildRequires:  openssl-devel
 BuildRequires:  redhat-lsb-core
@@ -623,6 +626,7 @@ python-cephfs instead.
 %setup -q
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %build
 %if 0%{with cephfs_java}
@@ -675,7 +679,9 @@ export RPM_OPT_FLAGS=`echo $RPM_OPT_FLAGS | sed -e 's/-g /-g1 /'`
 %endif
 		$CEPH_EXTRA_CONFIGURE_ARGS \
 		%{?_with_ocf} \
-		%{?_with_tcmalloc} \
+%if %{without tcmalloc}
+		--without-tcmalloc \
+%endif
 		CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"
 
 %if %{with lowmem_builder}
@@ -1529,6 +1535,10 @@ exit 0
 
 
 %changelog
+* Tue Jun 21 2016 Boris Ranto <branto@redhat.com> - 1:10.2.2-2
+- New release (1:10.2.2-2)
+- fix tcmalloc handling in spec file
+
 * Mon Jun 20 2016 Boris Ranto <branto@redhat.com> - 1:10.2.2-1
 - New version (1:10.2.2-1)
 - Disable erasure_codelib neon build
