@@ -55,7 +55,7 @@
 #################################################################################
 Name:		ceph
 Version:	10.2.2
-Release:	2%{?dist}
+Release:	3%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	LGPL-2.1 and CC-BY-SA-1.0 and GPL-2.0 and BSL-1.0 and GPL-2.0-with-autoconf-exception and BSD-3-Clause and MIT
@@ -1535,6 +1535,9 @@ exit 0
 
 
 %changelog
+* Tue Jul 19 2016 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1:10.2.2-3
+- https://fedoraproject.org/wiki/Changes/Automatic_Provides_for_Python_RPM_Packages
+
 * Tue Jun 21 2016 Boris Ranto <branto@redhat.com> - 1:10.2.2-2
 - New release (1:10.2.2-2)
 - fix tcmalloc handling in spec file
