@@ -1,4 +1,4 @@
-From 1aa42ff6c1d1a216d36a742835d9037601360f76 Mon Sep 17 00:00:00 2001
+From c850a2a598fd1df4c2925e09ff3ed583a6cdc59b Mon Sep 17 00:00:00 2001
 From: Boris Ranto <branto@redhat.com>
 Date: Wed, 11 Nov 2015 17:08:06 +0100
 Subject: [PATCH] Disable erasure_codelib neon build

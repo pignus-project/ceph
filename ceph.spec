@@ -54,8 +54,8 @@
 # common
 #################################################################################
 Name:		ceph
-Version:	10.2.2
-Release:	4%{?dist}
+Version:	10.2.3
+Release:	1%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	LGPL-2.1 and CC-BY-SA-1.0 and GPL-2.0 and BSL-1.0 and GPL-2.0-with-autoconf-exception and BSD-3-Clause and MIT
@@ -65,8 +65,13 @@ Group:         System/Filesystems
 URL:		http://ceph.com/
 Source0:	http://ceph.com/download/%{name}-%{version}.tar.gz
 Patch1: 0001-Disable-erasure_codelib-neon-build.patch
-Patch2: 0002-Do-not-use-momit-leaf-frame-pointer-flag.patch
-Patch3: 0003-fix-tcmalloc-handling-in-spec-file.patch
+%if 0%{?suse_version}
+%if 0%{?is_opensuse}
+ExclusiveArch:  x86_64 aarch64 ppc64 ppc64le
+%else
+ExclusiveArch:  x86_64 aarch64
+%endif
+%endif
 #################################################################################
 # dependencies that apply across all distro families
 #################################################################################
@@ -89,9 +94,13 @@ BuildRequires:	cryptsetup
 BuildRequires:	fuse-devel
 BuildRequires:	gcc-c++
 BuildRequires:	gdbm
+%if 0%{with tcmalloc}
+BuildRequires:	gperftools-devel
+%endif
 BuildRequires:	hdparm
 BuildRequires:	leveldb-devel > 1.2
 BuildRequires:	libaio-devel
+BuildRequires:	libatomic_ops-devel
 BuildRequires:	libblkid-devel >= 2.17
 BuildRequires:	libcurl-devel
 BuildRequires:	libudev-devel
@@ -128,13 +137,9 @@ BuildRequires:	systemd
 PreReq:		%fillup_prereq
 BuildRequires:	net-tools
 BuildRequires:	libbz2-devel
-%if 0%{with tcmalloc}
-BuildRequires:	gperftools-devel
-%endif
 BuildRequires:  btrfsprogs
 BuildRequires:	mozilla-nss-devel
 BuildRequires:	keyutils-devel
-BuildRequires:	libatomic-ops-devel
 BuildRequires:  libopenssl-devel
 BuildRequires:  lsb-release
 BuildRequires:  openldap2-devel
@@ -146,10 +151,6 @@ BuildRequires:  boost-random
 BuildRequires:	btrfs-progs
 BuildRequires:	nss-devel
 BuildRequires:	keyutils-libs-devel
-BuildRequires:	libatomic_ops-devel
-%if 0%{with tcmalloc}
-BuildRequires:	gperftools-devel
-%endif
 BuildRequires:  openldap-devel
 BuildRequires:  openssl-devel
 BuildRequires:  redhat-lsb-core
@@ -209,7 +210,6 @@ Requires:      python-setuptools
 Requires:      grep
 Requires:      xfsprogs
 Requires:      logrotate
-Requires:      parted
 Requires:      util-linux
 Requires:      hdparm
 Requires:      cryptsetup
@@ -354,6 +354,7 @@ Requires:	gdisk
 %if 0%{?suse_version}
 Requires:	gptfdisk
 %endif
+Requires:       parted
 %description osd
 ceph-osd is the object storage daemon for the Ceph distributed file
 system.  It is responsible for storing objects on a local file system
@@ -625,8 +626,6 @@ python-cephfs instead.
 %prep
 %setup -q
 %patch1 -p1
-%patch2 -p1
-%patch3 -p1
 
 %build
 %if 0%{with cephfs_java}
@@ -696,7 +695,7 @@ make %{?_smp_mflags}
 %if 0%{with tests}
 %check
 # run in-tree unittests
-make %{?_smp_mflags} check-local
+make %{?_smp_mflags} check
 
 %endif
 
@@ -721,17 +720,18 @@ install -m 0644 -D src/logrotate.conf %{buildroot}%{_sysconfdir}/logrotate.d/cep
 chmod 0644 %{buildroot}%{_docdir}/ceph/sample.ceph.conf
 chmod 0644 %{buildroot}%{_docdir}/ceph/sample.fetch_config
 
-# firewall templates
+# firewall templates and /sbin/mount.ceph symlink
 %if 0%{?suse_version}
 install -m 0644 -D etc/sysconfig/SuSEfirewall2.d/services/ceph-mon %{buildroot}%{_sysconfdir}/sysconfig/SuSEfirewall2.d/services/ceph-mon
 install -m 0644 -D etc/sysconfig/SuSEfirewall2.d/services/ceph-osd-mds %{buildroot}%{_sysconfdir}/sysconfig/SuSEfirewall2.d/services/ceph-osd-mds
+mkdir -p %{buildroot}/sbin
+ln -sf %{_sbindir}/mount.ceph %{buildroot}/sbin/mount.ceph
 %endif
 
 # udev rules
 install -m 0644 -D udev/50-rbd.rules %{buildroot}%{_udevrulesdir}/50-rbd.rules
+install -m 0644 -D udev/60-ceph-by-parttypeuuid.rules %{buildroot}%{_udevrulesdir}/60-ceph-by-parttypeuuid.rules
 install -m 0644 -D udev/95-ceph-osd.rules %{buildroot}%{_udevrulesdir}/95-ceph-osd.rules
-mv %{buildroot}/sbin/mount.ceph %{buildroot}/usr/sbin/mount.ceph
-mv %{buildroot}/sbin/mount.fuse.ceph %{buildroot}/usr/sbin/mount.fuse.ceph
 
 #set up placeholder directories
 mkdir -p %{buildroot}%{_sysconfdir}/ceph
@@ -771,7 +771,6 @@ rm -rf %{buildroot}
 %{_libexecdir}/systemd/system-preset/50-ceph.preset
 %{_sbindir}/ceph-create-keys
 %{_sbindir}/rcceph
-%{_sbindir}/mount.ceph
 %dir %{_libexecdir}/ceph
 %{_libexecdir}/ceph/ceph_common.sh
 %dir %{_libdir}/rados-classes
@@ -806,7 +805,6 @@ rm -rf %{buildroot}
 %{_mandir}/man8/osdmaptool.8*
 %{_mandir}/man8/monmaptool.8*
 %{_mandir}/man8/cephfs.8*
-%{_mandir}/man8/mount.ceph.8*
 #set up placeholder directories
 %attr(750,ceph,ceph) %dir %{_localstatedir}/lib/ceph/tmp
 %attr(750,ceph,ceph) %dir %{_localstatedir}/lib/ceph/bootstrap-osd
@@ -862,6 +860,10 @@ DISABLE_RESTART_ON_UPDATE="yes"
 %{_bindir}/rbd-replay
 %{_bindir}/rbd-replay-many
 %{_bindir}/rbdmap
+%{_sbindir}/mount.ceph
+%if 0%{?suse_version}
+/sbin/mount.ceph
+%endif
 %if %{with lttng}
 %{_bindir}/rbd-replay-prep
 %endif
@@ -875,6 +877,7 @@ DISABLE_RESTART_ON_UPDATE="yes"
 %{_mandir}/man8/ceph-syn.8*
 %{_mandir}/man8/ceph-post-file.8*
 %{_mandir}/man8/ceph.8*
+%{_mandir}/man8/mount.ceph.8*
 %{_mandir}/man8/rados.8*
 %{_mandir}/man8/rbd.8*
 %{_mandir}/man8/rbdmap.8*
@@ -1161,6 +1164,7 @@ fi
 %{_sbindir}/ceph-disk
 %{_sbindir}/ceph-disk-udev
 %{_libexecdir}/ceph/ceph-osd-prestart.sh
+%{_udevrulesdir}/60-ceph-by-parttypeuuid.rules
 %{_udevrulesdir}/95-ceph-osd.rules
 %{_mandir}/man8/ceph-clsinfo.8*
 %{_mandir}/man8/ceph-disk.8*
@@ -1222,10 +1226,6 @@ fi
 %dir %{_prefix}/lib/ocf
 %dir %{_prefix}/lib/ocf/resource.d
 %dir %{_prefix}/lib/ocf/resource.d/ceph
-%exclude %{_prefix}/lib/ocf/resource.d/ceph/ceph
-%exclude %{_prefix}/lib/ocf/resource.d/ceph/mds
-%exclude %{_prefix}/lib/ocf/resource.d/ceph/mon
-%exclude %{_prefix}/lib/ocf/resource.d/ceph/osd
 %{_prefix}/lib/ocf/resource.d/ceph/rbd
 
 %endif
@@ -1535,6 +1535,10 @@ exit 0
 
 
 %changelog
+* Thu Sep 29 2016 Boris Ranto <branto@redhat.com> - 1:10.2.3-1
+- New version (1:10.2.3-1)
+- Disable erasure_codelib neon build
+
 * Sun Aug 07 2016 Igor Gnatenko <ignatenko@redhat.com> - 1:10.2.2-4
 - Rebuild for LevelDB 1.18
 
