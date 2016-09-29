@@ -1,0 +1,50 @@
+From 870cc11b3ed170c1046ad719eeb4a1014371a4ad Mon Sep 17 00:00:00 2001
+From: Kefu Chai <kchai@redhat.com>
+Date: Sun, 26 Jun 2016 01:02:03 +0800
+Subject: [PATCH] common: instantiate strict_si_cast<long> not
+ strict_si_cast<int64_t>
+
+this fixes the build on armf.
+
+on 32bit platforms, cstdint is very likely to
+
+ typedef long long int int64_t;
+
+this results in compilation error like
+
+ `common/strtol.cc:190:75: error: duplicate explicit instantiation of 'T
+ strict_si_cast(const char, std::string) [with T = long long int;
+ std::string = std::basic_string]'
+
+ [-fpermissive]
+ template int64_t strict_si_cast(const char *str, std::string *err);
+ ^`
+
+we can address this by instantiate the primitive type of `long long`
+instead of `in64_t`.
+
+Fixes: http://tracker.ceph.com/issues/16398
+Signed-off-by: Kefu Chai <kchai@redhat.com>
+---
+ src/common/strtol.cc | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/common/strtol.cc b/src/common/strtol.cc
+index f43d661..04e09b1 100644
+--- a/src/common/strtol.cc
++++ b/src/common/strtol.cc
+@@ -187,9 +187,9 @@ T strict_si_cast(const char *str, std::string *err)
+ 
+ template int strict_si_cast<int>(const char *str, std::string *err);
+ 
+-template long long strict_si_cast<long long>(const char *str, std::string *err);
++template long strict_si_cast<long>(const char *str, std::string *err);
+ 
+-template int64_t strict_si_cast<int64_t>(const char *str, std::string *err);
++template long long strict_si_cast<long long>(const char *str, std::string *err);
+ 
+ template uint64_t strict_si_cast<uint64_t>(const char *str, std::string *err);
+ 
+-- 
+2.7.4
+
