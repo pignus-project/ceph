@@ -1,4 +1,4 @@
-From 870cc11b3ed170c1046ad719eeb4a1014371a4ad Mon Sep 17 00:00:00 2001
+From c7bf5767279cc5470408ed51dd47d462ea6c225c Mon Sep 17 00:00:00 2001
 From: Kefu Chai <kchai@redhat.com>
 Date: Sun, 26 Jun 2016 01:02:03 +0800
 Subject: [PATCH] common: instantiate strict_si_cast<long> not
@@ -45,6 +45,3 @@ index f43d661..04e09b1 100644
  
  template uint64_t strict_si_cast<uint64_t>(const char *str, std::string *err);
  
--- 
-2.7.4
-

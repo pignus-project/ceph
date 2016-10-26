@@ -55,7 +55,7 @@
 #################################################################################
 Name:		ceph
 Version:	10.2.3
-Release:	2%{?dist}
+Release:	3%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	LGPL-2.1 and CC-BY-SA-1.0 and GPL-2.0 and BSL-1.0 and GPL-2.0-with-autoconf-exception and BSD-3-Clause and MIT
@@ -64,8 +64,10 @@ Group:         System/Filesystems
 %endif
 URL:		http://ceph.com/
 Source0:	http://ceph.com/download/%{name}-%{version}.tar.gz
-Patch1: 0001-Disable-erasure_codelib-neon-build.patch
-Patch2: 0002-common-instantiate-strict_si_cast-long-not-strict_si.patch
+
+Patch0001: 0001-Disable-erasure_codelib-neon-build.patch
+Patch0002: 0002-common-instantiate-strict_si_cast-long-not-strict_si.patch
+
 %if 0%{?suse_version}
 %if 0%{?is_opensuse}
 ExclusiveArch:  x86_64 aarch64 ppc64 ppc64le
@@ -625,9 +627,7 @@ python-cephfs instead.
 # common
 #################################################################################
 %prep
-%setup -q
-%patch1 -p1
-%patch2 -p1
+%autosetup -p1
 
 %build
 %if 0%{with cephfs_java}
@@ -1537,6 +1537,9 @@ exit 0
 
 
 %changelog
+* Wed Oct 26 2016 Ken Dreyer <ktdreyer@ktdreyer.com> 1:10.2.3-3
+- update patches style for rdopkg
+
 * Thu Sep 29 2016 Boris Ranto <branto@redhat.com> - 1:10.2.3-2
 - New release (1:10.2.3-2)
 - common: instantiate strict_si_cast<long> not
