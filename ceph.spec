@@ -55,7 +55,7 @@
 #################################################################################
 Name:		ceph
 Version:	10.2.3
-Release:	3%{?dist}
+Release:	4%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	LGPL-2.1 and CC-BY-SA-1.0 and GPL-2.0 and BSL-1.0 and GPL-2.0-with-autoconf-exception and BSD-3-Clause and MIT
@@ -67,6 +67,7 @@ Source0:	http://ceph.com/download/%{name}-%{version}.tar.gz
 
 Patch0001: 0001-Disable-erasure_codelib-neon-build.patch
 Patch0002: 0002-common-instantiate-strict_si_cast-long-not-strict_si.patch
+Patch0003: 0003-librgw-add-API-version-defines-for-librgw-and-rgw_fi.patch
 
 %if 0%{?suse_version}
 %if 0%{?is_opensuse}
@@ -1537,6 +1538,9 @@ exit 0
 
 
 %changelog
+* Wed Oct 26 2016 Ken Dreyer <ktdreyer@ktdreyer.com> 1:10.2.3-4
+- librgw: add API version defines for librgw and rgw_file
+
 * Wed Oct 26 2016 Ken Dreyer <ktdreyer@ktdreyer.com> 1:10.2.3-3
 - update patches style for rdopkg
 
