@@ -33,9 +33,11 @@
 %bcond_with selinux
 %endif
 
-# LTTng-UST enabled on Fedora, RHEL 6+, and SLES 12
-%if 0%{?fedora} || 0%{?rhel} >= 6 || 0%{?suse_version} == 1315
+# LTTng-UST enabled on Fedora, RHEL 6+, and SLE (not openSUSE)
+%if 0%{?fedora} || 0%{?rhel} >= 6 || 0%{?suse_version}
+%if ! 0%{?is_opensuse}
 %bcond_without lttng
+%endif
 %endif
 
 %if %{with selinux}
@@ -54,8 +56,8 @@
 # common
 #################################################################################
 Name:		ceph
-Version:	10.2.3
-Release:	4%{?dist}
+Version:	10.2.4
+Release:	1%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	LGPL-2.1 and CC-BY-SA-1.0 and GPL-2.0 and BSL-1.0 and GPL-2.0-with-autoconf-exception and BSD-3-Clause and MIT
@@ -64,11 +66,7 @@ Group:         System/Filesystems
 %endif
 URL:		http://ceph.com/
 Source0:	http://ceph.com/download/%{name}-%{version}.tar.gz
-
-Patch0001: 0001-Disable-erasure_codelib-neon-build.patch
-Patch0002: 0002-common-instantiate-strict_si_cast-long-not-strict_si.patch
-Patch0003: 0003-librgw-add-API-version-defines-for-librgw-and-rgw_fi.patch
-
+Patch1: 0001-Disable-erasure_codelib-neon-build.patch
 %if 0%{?suse_version}
 %if 0%{?is_opensuse}
 ExclusiveArch:  x86_64 aarch64 ppc64 ppc64le
@@ -121,6 +119,7 @@ BuildRequires:	python-requests
 BuildRequires:	python-sphinx
 BuildRequires:	python-virtualenv
 BuildRequires:	snappy-devel
+BuildRequires:	udev
 BuildRequires:	util-linux
 %ifnarch s390
 BuildRequires:	valgrind-devel
@@ -377,13 +376,15 @@ developed as part of the Ceph distributed storage system. This is a
 shared library allowing applications to access the distributed object
 store using a simple file-like interface.
 
-%package -n librados2-devel
+%package -n librados-devel
 Summary:	RADOS headers
 Group:		Development/Libraries
 License:	LGPL-2.0
 Requires:	librados2 = %{epoch}:%{version}-%{release}
 Obsoletes:	ceph-devel < %{epoch}:%{version}-%{release}
-%description -n librados2-devel
+Provides:	librados2-devel = %{epoch}:%{version}-%{release}
+Obsoletes:	librados2-devel = %{epoch}:%{version}-%{release}
+%description -n librados-devel
 This package contains libraries and headers needed to develop programs
 that use RADOS object store.
 
@@ -396,12 +397,14 @@ Requires:	librados2 = %{epoch}:%{version}-%{release}
 This package provides a library implementation of the RADOS gateway
 (distributed object store with S3 and Swift personalities).
 
-%package -n librgw2-devel
+%package -n librgw-devel
 Summary:	RADOS gateway client library
 Group:		Development/Libraries
 License:	LGPL-2.0
 Requires:	librados2 = %{epoch}:%{version}-%{release}
-%description -n librgw2-devel
+Provides:	librgw2-devel = %{epoch}:%{version}-%{release}
+Obsoletes:	librgw2-devel = %{epoch}:%{version}-%{release}
+%description -n librgw-devel
 This package contains libraries and headers needed to develop programs
 that use RADOS gateway client library.
 
@@ -425,14 +428,16 @@ Striping interface built on top of the rados library, allowing
 to stripe bigger objects onto several standard rados objects using
 an interface very similar to the rados one.
 
-%package -n libradosstriper1-devel
+%package -n libradosstriper-devel
 Summary:	RADOS striping interface headers
 Group:		Development/Libraries
 License:	LGPL-2.0
 Requires:	libradosstriper1 = %{epoch}:%{version}-%{release}
-Requires:	librados2-devel = %{epoch}:%{version}-%{release}
+Requires:	librados-devel = %{epoch}:%{version}-%{release}
 Obsoletes:	ceph-devel < %{epoch}:%{version}-%{release}
-%description -n libradosstriper1-devel
+Provides:	libradosstriper1-devel = %{epoch}:%{version}-%{release}
+Obsoletes:	libradosstriper1-devel = %{epoch}:%{version}-%{release}
+%description -n libradosstriper-devel
 This package contains libraries and headers needed to develop programs
 that use RADOS striping interface.
 
@@ -450,14 +455,16 @@ RADOS, a reliable, autonomic distributed object storage cluster
 developed as part of the Ceph distributed storage system. This is a
 shared library allowing applications to manage these block devices.
 
-%package -n librbd1-devel
+%package -n librbd-devel
 Summary:	RADOS block device headers
 Group:		Development/Libraries
 License:	LGPL-2.0
 Requires:	librbd1 = %{epoch}:%{version}-%{release}
-Requires:	librados2-devel = %{epoch}:%{version}-%{release}
+Requires:	librados-devel = %{epoch}:%{version}-%{release}
 Obsoletes:	ceph-devel < %{epoch}:%{version}-%{release}
-%description -n librbd1-devel
+Provides:	librbd1-devel = %{epoch}:%{version}-%{release}
+Obsoletes:	librbd1-devel = %{epoch}:%{version}-%{release}
+%description -n librbd-devel
 This package contains libraries and headers needed to develop programs
 that use RADOS block device.
 
@@ -486,14 +493,16 @@ performance, reliability, and scalability. This is a shared library
 allowing applications to access a Ceph distributed file system via a
 POSIX-like interface.
 
-%package -n libcephfs1-devel
+%package -n libcephfs-devel
 Summary:	Ceph distributed file system headers
 Group:		Development/Libraries
 License:	LGPL-2.0
 Requires:	libcephfs1 = %{epoch}:%{version}-%{release}
-Requires:	librados2-devel = %{epoch}:%{version}-%{release}
+Requires:	librados-devel = %{epoch}:%{version}-%{release}
 Obsoletes:	ceph-devel < %{epoch}:%{version}-%{release}
-%description -n libcephfs1-devel
+Provides:	libcephfs1-devel = %{epoch}:%{version}-%{release}
+Obsoletes:	libcephfs1-devel = %{epoch}:%{version}-%{release}
+%description -n libcephfs-devel
 This package contains libraries and headers needed to develop programs
 that use Cephs distributed file system.
 
@@ -529,14 +538,16 @@ Requires:	libcephfs1 = %{epoch}:%{version}-%{release}
 This package contains the Java Native Interface library for CephFS Java
 bindings.
 
-%package -n libcephfs_jni1-devel
+%package -n libcephfs_jni-devel
 Summary:	Development files for CephFS Java Native Interface library
 Group:		System Environment/Libraries
 License:	LGPL-2.0
 Requires:	java
 Requires:	libcephfs_jni1 = %{epoch}:%{version}-%{release}
 Obsoletes:	ceph-devel < %{epoch}:%{version}-%{release}
-%description -n libcephfs_jni1-devel
+Provides:	libcephfs_jni1-devel = %{epoch}:%{version}-%{release}
+Obsoletes:	libcephfs_jni1-devel = %{epoch}:%{version}-%{release}
+%description -n libcephfs_jni-devel
 This package contains the development files for CephFS Java Native Interface
 library.
 
@@ -595,12 +606,12 @@ Summary:	Compatibility package for Ceph headers
 Group:		Development/Libraries
 License:	LGPL-2.0
 Obsoletes:	ceph-devel
-Requires:	librados2-devel = %{epoch}:%{version}-%{release}
-Requires:	libradosstriper1-devel = %{epoch}:%{version}-%{release}
-Requires:	librbd1-devel = %{epoch}:%{version}-%{release}
-Requires:	libcephfs1-devel = %{epoch}:%{version}-%{release}
+Requires:	librados-devel = %{epoch}:%{version}-%{release}
+Requires:	libradosstriper-devel = %{epoch}:%{version}-%{release}
+Requires:	librbd-devel = %{epoch}:%{version}-%{release}
+Requires:	libcephfs-devel = %{epoch}:%{version}-%{release}
 %if 0%{with cephfs_java}
-Requires:	libcephfs_jni1-devel = %{epoch}:%{version}-%{release}
+Requires:	libcephfs_jni-devel = %{epoch}:%{version}-%{release}
 %endif
 Provides:	ceph-devel
 %description devel-compat
@@ -628,6 +639,7 @@ python-cephfs instead.
 # common
 #################################################################################
 %prep
+%patch1 -p1
 %autosetup -p1
 
 %build
@@ -889,8 +901,8 @@ DISABLE_RESTART_ON_UPDATE="yes"
 %{_mandir}/man8/rbd-replay-prep.8*
 %dir %{_datadir}/ceph/
 %{_datadir}/ceph/known_hosts_drop.ceph.com
-%{_datadir}/ceph/id_dsa_drop.ceph.com
-%{_datadir}/ceph/id_dsa_drop.ceph.com.pub
+%{_datadir}/ceph/id_rsa_drop.ceph.com
+%{_datadir}/ceph/id_rsa_drop.ceph.com.pub
 %dir %{_sysconfdir}/ceph/
 %config %{_sysconfdir}/bash_completion.d/rados
 %config %{_sysconfdir}/bash_completion.d/rbd
@@ -898,6 +910,7 @@ DISABLE_RESTART_ON_UPDATE="yes"
 %{_unitdir}/rbdmap.service
 %{python_sitelib}/ceph_argparse.py*
 %{python_sitelib}/ceph_daemon.py*
+%dir %{_udevrulesdir}
 %{_udevrulesdir}/50-rbd.rules
 %attr(3770,ceph,ceph) %dir %{_localstatedir}/log/ceph/
 %attr(750,ceph,ceph) %dir %{_localstatedir}/lib/ceph/
@@ -1167,6 +1180,7 @@ fi
 %{_sbindir}/ceph-disk
 %{_sbindir}/ceph-disk-udev
 %{_libexecdir}/ceph/ceph-osd-prestart.sh
+%dir %{_udevrulesdir}
 %{_udevrulesdir}/60-ceph-by-parttypeuuid.rules
 %{_udevrulesdir}/95-ceph-osd.rules
 %{_mandir}/man8/ceph-clsinfo.8*
@@ -1248,7 +1262,7 @@ fi
 /sbin/ldconfig
 
 #################################################################################
-%files -n librados2-devel
+%files -n librados-devel
 %defattr(-,root,root,-)
 %dir %{_includedir}/rados
 %{_includedir}/rados/librados.h
@@ -1285,7 +1299,7 @@ fi
 /sbin/ldconfig
 
 #################################################################################
-%files -n libradosstriper1-devel
+%files -n libradosstriper-devel
 %defattr(-,root,root,-)
 %dir %{_includedir}/radosstriper
 %{_includedir}/radosstriper/libradosstriper.h
@@ -1309,7 +1323,7 @@ ln -sf %{_libdir}/librbd.so.1 /usr/lib64/qemu/librbd.so.1
 /sbin/ldconfig
 
 #################################################################################
-%files -n librbd1-devel
+%files -n librbd-devel
 %defattr(-,root,root,-)
 %dir %{_includedir}/rbd
 %{_includedir}/rbd/librbd.h
@@ -1332,7 +1346,7 @@ ln -sf %{_libdir}/librbd.so.1 /usr/lib64/qemu/librbd.so.1
 /sbin/ldconfig
 
 #################################################################################
-%files -n librgw2-devel
+%files -n librgw-devel
 %defattr(-,root,root,-)
 %dir %{_includedir}/rados
 %{_includedir}/rados/librgw.h
@@ -1357,7 +1371,7 @@ ln -sf %{_libdir}/librbd.so.1 /usr/lib64/qemu/librbd.so.1
 /sbin/ldconfig
 
 #################################################################################
-%files -n libcephfs1-devel
+%files -n libcephfs-devel
 %defattr(-,root,root,-)
 %dir %{_includedir}/cephfs
 %{_includedir}/cephfs/libcephfs.h
@@ -1420,7 +1434,7 @@ ln -sf %{_libdir}/librbd.so.1 /usr/lib64/qemu/librbd.so.1
 /sbin/ldconfig
 
 #################################################################################
-%files -n libcephfs_jni1-devel
+%files -n libcephfs_jni-devel
 %defattr(-,root,root,-)
 %{_libdir}/libcephfs_jni.so
 
@@ -1538,6 +1552,12 @@ exit 0
 
 
 %changelog
+* Thu Dec 08 2016 Boris Ranto <branto@redhat.com> - 1:10.2.4-1
+- New version (1:10.2.4-1)
+- Disable erasure_codelib neon build
+- Use newer -devel package format
+- Sync up the spec file
+
 * Wed Oct 26 2016 Ken Dreyer <ktdreyer@ktdreyer.com> 1:10.2.3-4
 - librgw: add API version defines for librgw and rgw_file
 
