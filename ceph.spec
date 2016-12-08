@@ -639,7 +639,6 @@ python-cephfs instead.
 # common
 #################################################################################
 %prep
-%patch1 -p1
 %autosetup -p1
 
 %build
