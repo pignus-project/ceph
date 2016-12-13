@@ -57,7 +57,7 @@
 #################################################################################
 Name:		ceph
 Version:	10.2.4
-Release:	1%{?dist}
+Release:	2%{?dist}
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	LGPL-2.1 and CC-BY-SA-1.0 and GPL-2.0 and BSL-1.0 and GPL-2.0-with-autoconf-exception and BSD-3-Clause and MIT
@@ -67,6 +67,7 @@ Group:         System/Filesystems
 URL:		http://ceph.com/
 Source0:	http://ceph.com/download/%{name}-%{version}.tar.gz
 Patch1: 0001-Disable-erasure_codelib-neon-build.patch
+Patch2: 0002-msg-simple-Pipe-avoid-returning-0-on-poll-timeout.patch
 %if 0%{?suse_version}
 %if 0%{?is_opensuse}
 ExclusiveArch:  x86_64 aarch64 ppc64 ppc64le
@@ -383,7 +384,7 @@ License:	LGPL-2.0
 Requires:	librados2 = %{epoch}:%{version}-%{release}
 Obsoletes:	ceph-devel < %{epoch}:%{version}-%{release}
 Provides:	librados2-devel = %{epoch}:%{version}-%{release}
-Obsoletes:	librados2-devel = %{epoch}:%{version}-%{release}
+Obsoletes:	librados2-devel < %{epoch}:%{version}-%{release}
 %description -n librados-devel
 This package contains libraries and headers needed to develop programs
 that use RADOS object store.
@@ -403,7 +404,7 @@ Group:		Development/Libraries
 License:	LGPL-2.0
 Requires:	librados2 = %{epoch}:%{version}-%{release}
 Provides:	librgw2-devel = %{epoch}:%{version}-%{release}
-Obsoletes:	librgw2-devel = %{epoch}:%{version}-%{release}
+Obsoletes:	librgw2-devel < %{epoch}:%{version}-%{release}
 %description -n librgw-devel
 This package contains libraries and headers needed to develop programs
 that use RADOS gateway client library.
@@ -436,7 +437,7 @@ Requires:	libradosstriper1 = %{epoch}:%{version}-%{release}
 Requires:	librados-devel = %{epoch}:%{version}-%{release}
 Obsoletes:	ceph-devel < %{epoch}:%{version}-%{release}
 Provides:	libradosstriper1-devel = %{epoch}:%{version}-%{release}
-Obsoletes:	libradosstriper1-devel = %{epoch}:%{version}-%{release}
+Obsoletes:	libradosstriper1-devel < %{epoch}:%{version}-%{release}
 %description -n libradosstriper-devel
 This package contains libraries and headers needed to develop programs
 that use RADOS striping interface.
@@ -463,7 +464,7 @@ Requires:	librbd1 = %{epoch}:%{version}-%{release}
 Requires:	librados-devel = %{epoch}:%{version}-%{release}
 Obsoletes:	ceph-devel < %{epoch}:%{version}-%{release}
 Provides:	librbd1-devel = %{epoch}:%{version}-%{release}
-Obsoletes:	librbd1-devel = %{epoch}:%{version}-%{release}
+Obsoletes:	librbd1-devel < %{epoch}:%{version}-%{release}
 %description -n librbd-devel
 This package contains libraries and headers needed to develop programs
 that use RADOS block device.
@@ -501,7 +502,7 @@ Requires:	libcephfs1 = %{epoch}:%{version}-%{release}
 Requires:	librados-devel = %{epoch}:%{version}-%{release}
 Obsoletes:	ceph-devel < %{epoch}:%{version}-%{release}
 Provides:	libcephfs1-devel = %{epoch}:%{version}-%{release}
-Obsoletes:	libcephfs1-devel = %{epoch}:%{version}-%{release}
+Obsoletes:	libcephfs1-devel < %{epoch}:%{version}-%{release}
 %description -n libcephfs-devel
 This package contains libraries and headers needed to develop programs
 that use Cephs distributed file system.
@@ -546,7 +547,7 @@ Requires:	java
 Requires:	libcephfs_jni1 = %{epoch}:%{version}-%{release}
 Obsoletes:	ceph-devel < %{epoch}:%{version}-%{release}
 Provides:	libcephfs_jni1-devel = %{epoch}:%{version}-%{release}
-Obsoletes:	libcephfs_jni1-devel = %{epoch}:%{version}-%{release}
+Obsoletes:	libcephfs_jni1-devel < %{epoch}:%{version}-%{release}
 %description -n libcephfs_jni-devel
 This package contains the development files for CephFS Java Native Interface
 library.
@@ -1551,6 +1552,12 @@ exit 0
 
 
 %changelog
+* Wed Dec 14 2016 Boris Ranto <branto@redhat.com> - 1:10.2.4-2
+- New version (1:10.2.4-2)
+- This syncs up with the upstream 10.2.5
+- Doing it this way because of broken lookaside cache
+- Fix the -devel obsoletes
+
 * Thu Dec 08 2016 Boris Ranto <branto@redhat.com> - 1:10.2.4-1
 - New version (1:10.2.4-1)
 - Disable erasure_codelib neon build
