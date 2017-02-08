@@ -70,7 +70,7 @@ License:	LGPL-2.1 and CC-BY-SA-1.0 and GPL-2.0 and BSL-1.0 and GPL-2.0-with-auto
 Group:         System/Filesystems
 %endif
 URL:		http://ceph.com/
-Source0:	http://download.ceph.com/tarballs/ceph-11.2.0.tar.gz
+Source0:	http://download.ceph.com/tarballs/ceph-11.2.0.tar.bz2
 %if 0%{?suse_version}
 %if 0%{?is_opensuse}
 ExclusiveArch:  x86_64 aarch64 ppc64 ppc64le
