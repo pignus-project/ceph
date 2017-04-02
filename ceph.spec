@@ -57,7 +57,7 @@
 #################################################################################
 Name:		ceph
 Version:	10.2.5
-Release:	2%{?dist}
+Release:	2%{?dist}.pi1
 Epoch:		1
 Summary:	User space components of the Ceph file system
 License:	LGPL-2.1 and CC-BY-SA-1.0 and GPL-2.0 and BSL-1.0 and GPL-2.0-with-autoconf-exception and BSD-3-Clause and MIT
@@ -123,7 +123,7 @@ BuildRequires:	python-virtualenv
 BuildRequires:	snappy-devel
 BuildRequires:	udev
 BuildRequires:	util-linux
-%ifnarch s390
+%ifnarch s390 armv6hl
 BuildRequires:	valgrind-devel
 %endif
 BuildRequires:	xfsprogs
@@ -1553,6 +1553,9 @@ exit 0
 
 
 %changelog
+* Sat Apr 08 2017 Lubomir Rintel <lkundrak@v3.sk> - 1:10.2.5-2.pi1
+- Drop valgrind br
+
 * Wed Feb 08 2017 Boris Ranto <branto@redhat.com> - 1:10.2.5-2
 - New release (1:10.2.5-2)
 
